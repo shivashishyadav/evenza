@@ -17,7 +17,7 @@ A full-stack college event management web app built with Flask.
 ## Setup Instructions
 
 ### 1. Clone the repo
-git clone https://github.com/yourusername/evenza.git
+git clone https://github.com/shivashishyadav/evenza.git
 cd evenza
 
 ### 2. Create virtual environment
