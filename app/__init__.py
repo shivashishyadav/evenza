@@ -1,0 +1,38 @@
+# App factory — initialises Flask, SQLAlchemy, Flask-Login and registers all blueprints in one place.
+
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+
+from config import Config
+
+db = SQLAlchemy()
+login_manager = LoginManager()
+
+def create_app():
+    '''Function that builds app'''
+    app = Flask(__name__) #Create Flask app instance
+    app.config.from_object(Config) #Loads config from config.py
+
+    db.init_app(app) #Connects Database (SQLAlchemy)
+    login_manager.init_app(app) #Login system
+    login_manager.login_view = 'auth.login' #If user not logged in, redirect to login page
+
+    from app.models import User
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    # Import blueprints
+    from app.routes.auth import auth
+    from app.routes.student import student
+    from app.routes.organiser import organiser
+    from app.routes.admin import admin
+
+    # Each blueprint is a module of routes
+    app.register_blueprint(auth) #Activate routes inside auth.py
+    app.register_blueprint(student)
+    app.register_blueprint(organiser)
+    app.register_blueprint(admin)
+
+    return app

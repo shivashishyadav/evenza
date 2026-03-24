@@ -1,0 +1,9 @@
+#  ignore .env, __pycache__, etc.
+
+myenv/
+__pycache__/
+*.pyc
+.env
+instance/
+*.db
+.vscode/
