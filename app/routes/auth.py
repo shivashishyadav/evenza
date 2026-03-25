@@ -15,6 +15,8 @@ def home():
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('student.dashboard'))
     if request.method=='POST':
         name = request.form.get('name')
         email = request.form.get('email')
@@ -39,6 +41,15 @@ def register():
 
 @auth.route('/login', methods=['GET','POST'])
 def login():
+    # if already logged in, redirect to dashboard
+    if current_user.is_authenticated:
+        if current_user.role == 'admin':
+            return redirect(url_for('admin.dashboard'))
+        elif current_user.role == 'organiser':
+            return redirect(url_for('organiser.dashboard'))
+        else:
+            return redirect(url_for('student.dashboard'))
+    
     if request.method=='POST':
         email=request.form.get('email')
         password = request.form.get('password')
@@ -50,7 +61,9 @@ def login():
             return redirect(url_for('auth.login'))
         
         login_user(user) #session["user_id"] = user.id
-        flash(f'Welcome Back, {user.name}!', 'success')
+
+        # Flask flash messages are stored in the session until they are displayed. So when we login -> flash is stored -> redirect to dashboard (stub page, no template) -> flash never displays -> logout -> redirect to login page -> NOW both the old welcome flash AND logout flash display together.
+        # flash(f'Welcome Back, {user.name}!', 'success') 
 
         # redirect based on role
         if user.role=='admin':
