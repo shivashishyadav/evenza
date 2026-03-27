@@ -35,4 +35,18 @@ def create_app():
     app.register_blueprint(organiser)
     app.register_blueprint(admin)
 
+    # Error handlers: With our error handler, we control exactly what the user sees
+    @app.errorhandler(403)
+    def forbidden(e):
+        return '<h2>403 - You do not have permission to access this page.</h2>', 403
+
+    @app.errorhandler(404)
+    def not_found(e):
+        return '<h2>404 - Page not found.</h2>', 404
+
+    @app.errorhandler(401)
+    def unauthorized(e):
+        return '<h2>401 - Please login first.</h2>', 401
+    
+
     return app

@@ -16,12 +16,30 @@ def home():
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('student.dashboard'))
+        if current_user.role == 'admin':
+            return redirect(url_for('admin.dashboard'))
+        elif current_user.role == 'organiser':
+            return redirect(url_for('organiser.dashboard'))
+        else:
+            return redirect(url_for('student.dashboard'))
     if request.method=='POST':
         name = request.form.get('name')
-        email = request.form.get('email')
+        email = request.form.get('email').lower().strip()
         password = request.form.get('password')
         role = request.form.get('role')
+
+        # Prevent admin registration
+        if role not in ['student', 'organiser']:
+            role = 'student'
+
+        # Basic validation
+        if not name or not email or not password:
+            flash('All fields are required', 'danger')
+            return redirect(url_for('auth.register'))
+
+        if len(password) < 5:
+            flash('Password must be at least 5 characters', 'danger')
+            return redirect(url_for('auth.register'))
 
         # check if email already exists
         existing_user = User.query.filter_by(email=email).first()
@@ -51,7 +69,7 @@ def login():
             return redirect(url_for('student.dashboard'))
     
     if request.method=='POST':
-        email=request.form.get('email')
+        email=request.form.get('email').lower().strip()
         password = request.form.get('password')
 
         user = User.query.filter_by(email=email).first()
@@ -75,7 +93,7 @@ def login():
     
     return render_template('auth/login.html')
 
-@auth.route('/logout')
+@auth.route('/logout', methods=['GET','POST'])
 @login_required #Only logged-in users can logout
 def logout():
     logout_user() # clear session, session["user_id"] removed
