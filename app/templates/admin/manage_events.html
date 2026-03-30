@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row mb-4">
+    <div class="col">
+        <h4>Manage Events</h4>
+        <p class="text-muted">Review and approve or reject events submitted by organisers.</p>
+    </div>
+</div>
+
+<!-- pending events -->
+ <h5 class="mb-3">
+    <!-- show number of pending events -->
+    <span class="badge bg-warning text-dark">{{ pending|length }}</span>
+ </h5>
+
+{% if pending %}
+    <div class="row">
+        {% for event in pending %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">{{ event.title }}</h5>
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    </div>
+
+                    <p class="text-muted small mb-1">
+                        by {{ event.organiser.name }}
+                    </p>
+
+                    <hr>
+
+                    <p class="mb-1"><strong>Venue:</strong> {{ event.venue }}</p>
+                    <p class="mb-1"><strong>Date:</strong> {{ event.date.strftime('%d %b %Y, %I:%M %p') }}</p>
+                    <p class="mb-1"><strong>Capacity:</strong> {{ event.capacity }} seats</p>
+
+                    {% if event.description %}
+                    <p class="mt-2 text-muted small">{{ event.description }}</p>
+                    {% endif %}
+
+                </div>
+
+                <div class="card-footer d-flex gap-2">
+                    <form method="POST" action="{{ url_for('admin.approve_event', event_id=event.id) }}">
+                        <button type="submit" class="btn btn-success btn-sm">
+                            Approve
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin.reject_event', event_id=event.id) }}">
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            Reject
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{% else %}
+    <div class="alert alert-info">No pending events right now.</div>
+{% endif %}
+
+<!-- Approved & Rejected Events -->
+<h5 class="mt-4 mb-3">All Events</h5>
+
+{% if all_events %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Title</th>
+                <th>Organiser</th>
+                <th>Date</th>
+                <th>Capacity</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in all_events %}
+            <tr>
+                <td>{{ event.title }}</td>
+                <td>{{ event.organiser.name }}</td>
+                <td>{{ event.date.strftime('%d %b %Y') }}</td>
+                <td>{{ event.capacity }}</td>
+                <td>
+                    {% if event.status == 'approved' %}
+                        <span class="badge bg-success">Approved</span>
+                    {% elif event.status == 'rejected' %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% else %}
+    <div class="alert alert-info">No events found.</div>
+{% endif %}
+
+{% endblock %}
