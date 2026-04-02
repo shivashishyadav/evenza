@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from app.decorators import role_required
 from app import db
-from app.models import Event
+from app.models import Event, Registration
 from datetime import datetime, timezone
 import os
 from werkzeug.utils import secure_filename
@@ -28,7 +28,28 @@ def allowed_file(filename):
 @login_required
 @role_required('organiser')
 def dashboard():
-    return '<h2>Organiser Dashboard</h2>'
+    # Gets only events created by this organiser(newest first)
+    events = Event.query.filter_by(organiser_id=current_user.id).order_by(Event.created_at.desc()).all()
+    total = len(events) #Gets only events created by this organiser
+    pending = sum(1 for e in events if e.status=='pending') #waiting for admin
+    approved = sum(1 for e in events if e.status=='approved')
+    rejected = sum(1 for e in events if e.status=='rejected')
+
+    #registration count per event
+    events_data = []
+    for event in events:
+        # cout confirmed registrations
+        count = Registration.query.filter_by(event_id=event.id,status='confirmed').count()
+        events_data.append((event, count))
+
+    # send to templates
+    return render_template('organiser/dashboard.html',
+        events_data=events_data,
+        total=total,
+        pending=pending,
+        approved=approved,
+        rejected=rejected
+    )
 
 
 # -------------------------------CREATE EVENT----------------------------------------

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h4 class="mb-4">Organiser Dashboard</h4>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h2 class="text-primary fw-bold">{{ total }}</h2>
+            <p class="text-muted mb-0">Total Events</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h2 class="text-warning fw-bold">{{ pending }}</h2>
+            <p class="text-muted mb-0">Pending</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h2 class="text-success fw-bold">{{ approved }}</h2>
+            <p class="text-muted mb-0">Approved</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h2 class="text-danger fw-bold">{{ rejected }}</h2>
+            <p class="text-muted mb-0">Rejected</p>
+        </div>
+    </div>
+</div>
+
+<!-- Events table -->
+<h5 class="mb-3">Your Events</h5>
+
+{% if events_data %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Capacity</th>
+                <th>Registered</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event, count in events_data %}
+            <tr>
+                <td>{{ event.title }}</td>
+                <td>{{ event.date.strftime('%d %b %Y') }}</td>
+                <td>{{ event.capacity }}</td>
+                <td>{{ count }} / {{ event.capacity }}</td>
+                <td>
+                    {% if event.status == 'approved' %}
+                        <span class="badge bg-success">Approved</span>
+                    {% elif event.status == 'rejected' %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    No events yet. <a href="{{ url_for('organiser.create_event') }}">Create your first event!</a>
+</div>
+{% endif %}
+
+{% endblock %}

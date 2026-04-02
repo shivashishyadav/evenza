@@ -1,36 +1,95 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h3>My Registered Events</h3>
 
-{% if regs %}
-<table class="table">
-    <thead>
-        <tr>
-            <th>Event</th>
-            <th>Date</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for r in regs %}
-        <tr>
-            <td>{{ r.event.title }}</td>
-            <td>{{ r.event.date.strftime('%d %b %Y') }}</td>
-            <td>
-                {% if r.status == 'confirmed' %}
-                    <span class="badge bg-success">Confirmed</span>
-                {% else %}
-                    <span class="badge bg-warning text-dark">Waitlist</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<h4 class="mb-4">Welcome, {{ current_user.name }}!</h4>
+
+<!-- Stats row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <h2 class="text-primary fw-bold">{{ total }}</h2>
+            <p class="text-muted mb-0">Total Registered</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <h2 class="text-success fw-bold">{{ confirmed }}</h2>
+            <p class="text-muted mb-0">Confirmed</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <h2 class="text-warning fw-bold">{{ waitlist }}</h2>
+            <p class="text-muted mb-0">On Waitlist</p>
+        </div>
+    </div>
+</div>
+
+
+<!-- Upcoming events -->
+<h5 class="mb-3">Upcoming Events</h5>
+
+{% if upcoming %}
+<div class="row">
+    {% for r in upcoming %}
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="fw-bold">{{ r.event.title }}</h6>
+                <p class="text-muted small mb-1">{{ r.event.venue }}</p>
+                <p class="text-muted small mb-2">{{ r.event.date.strftime('%d %b %Y, %I:%M %p') }}</p>
+                <span class="badge bg-success">Confirmed</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% else %}
 <div class="alert alert-info">
-    You haven't registered for any events yet.
+    No upcoming events. <a href="{{ url_for('student.events') }}">Browse events</a> to register!
+</div>
+{% endif %}
+
+
+
+<!-- All registrations -->
+<h5 class="mt-4 mb-3">All Registrations</h5>
+
+{% if regs %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Venue</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in regs %}
+            <tr>
+                <td>{{ r.event.title }}</td>
+                <td>{{ r.event.date.strftime('%d %b %Y') }}</td>
+                <td>{{ r.event.venue }}</td>
+                <td>
+                    {% if r.status == 'confirmed' %}
+                        <span class="badge bg-success">Confirmed</span>
+                    {% elif r.status == 'waitlist' %}
+                        <span class="badge bg-warning text-dark">Waitlist</span>
+                    {% else %}
+                        <span class="badge bg-danger">Cancelled</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    No registrations yet. <a href="{{ url_for('student.events') }}">Browse events!</a>
 </div>
 {% endif %}
 

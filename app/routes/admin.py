@@ -14,7 +14,23 @@ admin = Blueprint('admin', __name__)
 @login_required
 @role_required('admin')
 def dashboard():
-    return '<h2>Admin Dashboard</h2>'
+    from app.models import User, Registration, Event
+    total_users = User.query.count() #How many users are on the platform(Users:120)
+    total_events = Event.query.count() #Total events created (all statuses) (Events:21)
+    total_regs = Registration.query.count() #Total participation across all events(Registration:400)
+
+    # “Do I have work to do?
+    pending_events = Event.query.filter_by(status='pending').count() #Events waiting for admin approval
+    recent_events = Event.query.order_by(Event.created_at.desc()).limit(5).all() #sorts events by newest first(takes latest 5)
+
+    # send data to template
+    return render_template('admin/dashboard.html',
+        total_users=total_users,
+        total_events=total_events,
+        total_regs=total_regs,
+        pending_events=pending_events,
+        recent_events=recent_events
+    )
 
 
 # -------------------------------------LISTING ALL EVENTS--------------------------------------

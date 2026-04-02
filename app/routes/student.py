@@ -13,8 +13,25 @@ student = Blueprint('student', __name__)
 @login_required #Only logged-in users can logout
 @role_required('student')
 def dashboard():
-    regs = Registration.query.filter_by(user_id=current_user.id).all()
-    return render_template('student/dashboard.html', regs=regs)
+    regs = Registration.query.filter_by(user_id=current_user.id).all() #all registration of current user
+    total = len(regs) # total number of events of current user
+    confirmed = sum(1 for r in regs if r.status=='confirmed') #Count only those with status = confirmed
+    waitlist = sum(1 for r in regs if r.status=='waitlist') #Events where user is not guaranteed a seat
+
+    # upcoming events only
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    # Only events that haven’t happened yet, Ignore waitlist events
+    upcoming = [r for r in regs if r.event.date>now and r.status=='confirmed']
+
+    # Send data to template & return template
+    return render_template('student/dashboard.html',
+        regs=regs,
+        total=total,
+        confirmed=confirmed,
+        waitlist=waitlist,
+        upcoming=upcoming
+    )
 
 
 # --------------------------My Events-------------------------------
@@ -23,7 +40,19 @@ def dashboard():
 @role_required('student')
 def my_events():    
     regs = Registration.query.filter_by(user_id=current_user.id).all()
-    return render_template('student/dashboard.html', regs=regs)
+    total = len(regs)
+    confirmed = sum(1 for r in regs if r.status == 'confirmed')
+    waitlist = sum(1 for r in regs if r.status == 'waitlist')
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    upcoming = [r for r in regs if r.event.date > now and r.status == 'confirmed']
+    return render_template('student/dashboard.html',
+        regs=regs,
+        total=total,
+        confirmed=confirmed,
+        waitlist=waitlist,
+        upcoming=upcoming
+    )   
 
 
 # ------------------------Events Listing--------------------------------------
