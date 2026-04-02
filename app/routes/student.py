@@ -123,7 +123,21 @@ def register(event_id):
     )
 
     db.session.add(reg)
+
+    db.session.flush()  #get reg.id before commit
+
+    from app.utils import generate_qr
+    #generate qr code only for confirmed registration
+    if status == 'confirmed':
+        qr_filename = generate_qr(reg.id, current_user.id, event_id)
+        reg.qr_code = qr_filename
+
     db.session.commit()
+    
+    if status == 'confirmed':
+        flash('Registered successfully! Your QR code is ready.', 'success')
+    else:
+        flash('Event full — added to waitlist.', 'warning')
 
     return redirect(url_for('student.my_events'))
 

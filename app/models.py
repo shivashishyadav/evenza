@@ -53,7 +53,7 @@ class Registration(db.Model):
             db.UniqueConstraint('user_id', 'event_id', name='unique_registration'),
             CheckConstraint("status IN ('confirmed', 'waitlist', 'cancelled')", name='check_registration_status'),     
           )
-
+    qr_code = db.Column(db.String(200), nullable=True)  # added column for qr code
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id', ondelete='CASCADE'), nullable=False, index=True)

@@ -35,11 +35,21 @@
     {% for r in upcoming %}
     <div class="col-md-4 mb-3">
         <div class="card h-100">
-            <div class="card-body">
+            <div class="card-body text-center">
                 <h6 class="fw-bold">{{ r.event.title }}</h6>
                 <p class="text-muted small mb-1">{{ r.event.venue }}</p>
                 <p class="text-muted small mb-2">{{ r.event.date.strftime('%d %b %Y, %I:%M %p') }}</p>
-                <span class="badge bg-success">Confirmed</span>
+                <span class="badge bg-success mb-2">Confirmed</span>
+
+                {% if r.qr_code %}
+                    <div class="mt-2">
+                        <img src="{{ url_for('static', filename='qrcodes/' + r.qr_code) }}"
+                            alt="QR Code"
+                            width="150"
+                            class="img-fluid">
+                        <p class="text-muted small mt-1">Show this at the venue</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

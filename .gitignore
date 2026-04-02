@@ -8,3 +8,5 @@ instance/
 *.db
 .vscode/
 app/static/uploads/
+app/static/qrcodes/
+app/static/certificates/
