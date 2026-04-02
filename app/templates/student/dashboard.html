@@ -31,6 +31,11 @@
 <h5 class="mb-3">Upcoming Events</h5>
 
 {% if upcoming %}
+<!-- 
+    r=Registration object
+    r.event = related Event
+    Registration->Event relationship here
+-->
 <div class="row">
     {% for r in upcoming %}
     <div class="col-md-4 mb-3">
@@ -41,6 +46,7 @@
                 <p class="text-muted small mb-2">{{ r.event.date.strftime('%d %b %Y, %I:%M %p') }}</p>
                 <span class="badge bg-success mb-2">Confirmed</span>
 
+                <!-- if qr exists -->
                 {% if r.qr_code %}
                     <div class="mt-2">
                         <img src="{{ url_for('static', filename='qrcodes/' + r.qr_code) }}"
@@ -55,6 +61,8 @@
     </div>
     {% endfor %}
 </div>
+
+<!-- Prevents empty UI -->
 {% else %}
 <div class="alert alert-info">
     No upcoming events. <a href="{{ url_for('student.events') }}">Browse events</a> to register!
@@ -62,10 +70,10 @@
 {% endif %}
 
 
-
 <!-- All registrations -->
 <h5 class="mt-4 mb-3">All Registrations</h5>
 
+<!-- Show only if user has registrations -->
 {% if regs %}
 <div class="table-responsive">
     <table class="table table-hover align-middle">
@@ -97,6 +105,8 @@
         </tbody>
     </table>
 </div>
+
+<!-- avoids blank page -->
 {% else %}
 <div class="alert alert-info">
     No registrations yet. <a href="{{ url_for('student.events') }}">Browse events!</a>

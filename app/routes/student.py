@@ -116,24 +116,30 @@ def register(event_id):
         status = 'waitlist'
         flash('Event full, added to waitlist', 'warning')
     
-    reg = Registration(
+    reg = Registration( #reg.id=None
         user_id=current_user.id,
         event_id=event_id,
         status=status
     )
 
-    db.session.add(reg)
+    db.session.add(reg) # Added to session, still reg.id=None, because SQLAlchemy hasn’t sent query to DB yet
+ 
+    # It sends pending changes to DB WITHOUT committing
+    db.session.flush()  #get reg.id before commit(if i dont use flush then reg.id=None, thats crash the code)
+    # if we dont use flush, data string for qr generation is: EVENZA-REG-None-5-3(useless, lost uniqueness)
 
-    db.session.flush()  #get reg.id before commit
+    # flush = "talk to DB, but don’t finalize"
+    # commit = "final save"
 
     from app.utils import generate_qr
     #generate qr code only for confirmed registration
-    if status == 'confirmed':
+    # Waitlist users don’t have guaranteed seat
+    if status == 'confirmed': 
         qr_filename = generate_qr(reg.id, current_user.id, event_id)
-        reg.qr_code = qr_filename
+        reg.qr_code = qr_filename #stores filename in DB, link registration to qr image
 
     db.session.commit()
-    
+
     if status == 'confirmed':
         flash('Registered successfully! Your QR code is ready.', 'success')
     else:
