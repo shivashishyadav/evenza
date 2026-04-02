@@ -22,12 +22,16 @@ def allowed_file(filename):
     else:
         return False
 
+
+# -----------------------------------DASHBOARD----------------------------------------
 @organiser.route('/organiser/dashboard')
 @login_required
 @role_required('organiser')
 def dashboard():
     return '<h2>Organiser Dashboard</h2>'
 
+
+# -------------------------------CREATE EVENT----------------------------------------
 @organiser.route('/organiser/create-event', methods=['GET', 'POST'])
 @login_required
 @role_required('organiser')
@@ -108,6 +112,7 @@ def create_event():
     return render_template('organiser/create_event.html')
 
 
+# -------------------------------LISTING ALL EVENTS------------------------------
 @organiser.route('/organiser/my-events')
 @login_required
 @role_required('organiser')
@@ -115,6 +120,7 @@ def my_events():
     return '<h2>My Events - Coming Soon!</h2>'
 
 
+# ----------------------------------ATTENDANCE CHECKIN------------------------------
 @organiser.route('/organiser/checkin')
 @login_required
 @role_required('organiser')

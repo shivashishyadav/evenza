@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3>My Registered Events</h3>
+
+{% if regs %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Event</th>
+            <th>Date</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in regs %}
+        <tr>
+            <td>{{ r.event.title }}</td>
+            <td>{{ r.event.date.strftime('%d %b %Y') }}</td>
+            <td>
+                {% if r.status == 'confirmed' %}
+                    <span class="badge bg-success">Confirmed</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Waitlist</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">
+    You haven't registered for any events yet.
+</div>
+{% endif %}
+
+{% endblock %}

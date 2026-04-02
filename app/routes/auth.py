@@ -11,7 +11,15 @@ auth = Blueprint('auth', __name__)
 
 @auth.route('/')
 def home():
+    if current_user.is_authenticated:
+        if current_user.role == 'admin':
+            return redirect(url_for('admin.dashboard'))
+        elif current_user.role == 'organiser':
+            return redirect(url_for('organiser.dashboard'))
+        else:
+            return redirect(url_for('student.dashboard'))
     return redirect(url_for('auth.login'))
+
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():

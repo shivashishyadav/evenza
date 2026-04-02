@@ -8,12 +8,16 @@ from app.models import Event
 
 admin = Blueprint('admin', __name__)
 
+
+# ---------------------------------------DASHBOARD----------------------------------------
 @admin.route('/admin/dashboard')
 @login_required
 @role_required('admin')
 def dashboard():
     return '<h2>Admin Dashboard</h2>'
 
+
+# -------------------------------------LISTING ALL EVENTS--------------------------------------
 @admin.route('/admin/manage-events')
 @login_required
 @role_required('admin')
@@ -23,6 +27,7 @@ def manage_events():
     return render_template('admin/manage_events.html', pending=pending, all_events=all_events) #Send data to template
 
 
+# -------------------------------------APPROVE PENDING'S EVENTS--------------------------------------
 @admin.route('/admin/approve-event/<int:event_id>', methods=['POST'])
 @login_required
 @role_required('admin')
@@ -39,6 +44,8 @@ def approve_event(event_id):
     flash(f'"{event.title}" has been approved!', 'success')
     return redirect(url_for('admin.manage_events'))
 
+
+# -----------------------------REJECT PENDING'S EVENTS------------------------------
 @admin.route('/admin/reject-event/<int:event_id>', methods=['POST'])
 @login_required
 @role_required('admin')
@@ -54,12 +61,16 @@ def reject_event(event_id):
     flash(f'"{event.title}" has been rejected.', 'danger')
     return redirect(url_for('admin.manage_events'))
 
+
+# ---------------------------MANAGE USERS-------------------------------------
 @admin.route('/admin/manage-users')
 @login_required
 @role_required('admin')
 def manage_users():
     return '<h2>Manage Users — Coming Soon</h2>'
 
+
+# ----------------------------------REPORSTS---------------------------------
 @admin.route('/admin/reports')
 @login_required
 @role_required('admin')
