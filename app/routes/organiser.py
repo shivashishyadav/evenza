@@ -138,7 +138,25 @@ def create_event():
 @login_required
 @role_required('organiser')
 def my_events():
-    return '<h2>My Events - Coming Soon!</h2>'
+    events = Event.query.filter_by(
+        organiser_id=current_user.id
+        ).order_by(Event.created_at.desc()).all()
+
+    events_data = []
+    for event in events:
+        confirmed_count = Registration.query.filter_by(
+            event_id=event.id,
+            status='confirmed').count()
+        
+        waitlist_count = Registration.query.filter_by(
+            event_id=event.id,
+            status='waitlist'
+        ).count()
+
+        seats_left = event.capacity - confirmed_count
+        events_data.append((event, confirmed_count, waitlist_count, seats_left))
+
+    return render_template('organiser/my_events.html', events_data=events_data)
 
 
 # ----------------------------------ATTENDANCE CHECKIN------------------------------

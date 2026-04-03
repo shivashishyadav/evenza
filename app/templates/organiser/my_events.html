@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">My Events</h4>
+    <a href="{{ url_for('organiser.create_event') }}" class="btn btn-primary btn-sm">
+        + Create New Event
+    </a>
+</div>
+
+{% if events_data %}
+    {% for event, confirmed, waitlist, seats_left in events_data %}
+    <div class="card mb-3">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="fw-bold mb-1">{{ event.title }}</h5>
+                    <p class="text-muted small mb-1">
+                        {{ event.venue }} &nbsp;|&nbsp;
+                        {{ event.date.strftime('%d %b %Y, %I:%M %p') }}
+                    </p>
+                </div>
+                <div>
+                    {% if event.status == 'approved' %}
+                        <span class="badge bg-success">Approved</span>
+                    {% elif event.status == 'rejected' %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr class="my-2">
+
+            <!-- Stats row -->
+            <div class="row text-center g-2 mb-3">
+                <div class="col-4">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold text-success">{{ confirmed }}</div>
+                        <div class="text-muted small">Confirmed</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold text-warning">{{ waitlist }}</div>
+                        <div class="text-muted small">Waitlist</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold text-primary">{{ seats_left }}</div>
+                        <div class="text-muted small">Seats Left</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="d-flex gap-2">
+                {% if event.status == 'approved' %}
+                    <a href="{{ url_for('organiser.checkin') }}?event_id={{ event.id }}"
+                       class="btn btn-success btn-sm">
+                        Scan QR / Check-in
+                    </a>
+                {% endif %}
+
+                {% if event.status == 'pending' %}
+                    <span class="text-muted small mt-1">
+                        Waiting for admin approval...
+                    </span>
+                {% endif %}
+
+                {% if event.status == 'rejected' %}
+                    <span class="text-danger small mt-1">
+                        This event was rejected by admin.
+                    </span>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+
+{% else %}
+    <div class="alert alert-info">
+        No events yet. 
+        <a href="{{ url_for('organiser.create_event') }}">Create your first event!</a>
+    </div>
+{% endif %}
+
+{% endblock %}
