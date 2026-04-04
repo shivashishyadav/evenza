@@ -44,6 +44,7 @@
                 <th>Capacity</th>
                 <th>Registered</th>
                 <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -60,6 +61,16 @@
                         <span class="badge bg-danger">Rejected</span>
                     {% else %}
                         <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if event.status == 'approved' %}
+                        <a href="{{ url_for('organiser.checkin', event_id=event.id) }}" 
+                        class="btn btn-success btn-sm">
+                            Check-in
+                        </a>
+                    {% else %}
+                        <span class="text-muted small">—</span>
                     {% endif %}
                 </td>
             </tr>

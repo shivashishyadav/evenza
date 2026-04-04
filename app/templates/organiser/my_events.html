@@ -59,7 +59,7 @@
             <!-- Action buttons -->
             <div class="d-flex gap-2">
                 {% if event.status == 'approved' %}
-                    <a href="{{ url_for('organiser.checkin') }}?event_id={{ event.id }}"
+                    <a href="{{ url_for('organiser.checkin', event_id=event.id) }}"
                        class="btn btn-success btn-sm">
                         Scan QR / Check-in
                     </a>

@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row">
+    <div class="col-md-6">
+
+        <h4 class="mb-1">Check-in Scanner</h4>
+        <p class="text-muted mb-3">{{ event.title }} — {{ event.date.strftime('%d %b %Y') }}</p>
+
+        <!-- Camera feed -->
+        <div class="card mb-3">
+            <div class="card-body text-center p-2">
+                <video id="camera" width="100%" style="border-radius: 8px;" autoplay muted playsinline></video>
+                <canvas id="canvas" style="display:none;"></canvas>
+                <div class="mt-2 d-flex gap-2 justify-content-center">
+                    <button onclick="stopCamera()" class="btn btn-danger btn-sm" id="stop-btn">
+                        Stop Camera
+                    </button>
+                    <button onclick="startCamera()" class="btn btn-success btn-sm" id="start-btn" style="display:none;">
+                        Start Camera
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result box -->
+        <div id="result-box" class="alert" style="display:none;"></div>
+
+        <!-- Manual entry fallback -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <p class="text-muted small mb-2">Can't scan? Enter QR data manually:</p>
+                <div class="d-flex gap-2">
+                    <input type="text" id="manual-input" class="form-control form-control-sm"
+                           placeholder="e.g. EVENZA-REG-1-2-3">
+                    <button onclick="manualCheckin()" class="btn btn-primary btn-sm">Check-in</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Attendance list -->
+    <div class="col-md-6">
+        <h5 class="mb-3">Registered Students
+            <span class="badge bg-secondary">{{ registrations|length }}</span>
+        </h5>
+
+        <div id="attendance-list">
+            {% for reg in registrations %}
+            <div class="d-flex justify-content-between align-items-center p-2 mb-1 border rounded"
+                 id="reg-{{ reg.id }}">
+                <span>{{ reg.user.name }}</span>
+                {% if attendance_map[reg.id] %}
+                    <span class="badge bg-success">Present</span>
+                {% else %}
+                    <span class="badge bg-secondary">Absent</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+<script>
+const video = document.getElementById('camera');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const resultBox = document.getElementById('result-box');
+let stream = null;
+let scanning = true;
+let lastScanned = '';
+
+function startCamera() {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }) //Opens back camera (mobile-friendly)
+        .then(s => {
+            stream = s;
+            video.srcObject = stream;
+            video.play();
+            scanning = true;
+            document.getElementById('stop-btn').style.display = 'inline-block';
+            document.getElementById('start-btn').style.display = 'none';
+            requestAnimationFrame(scanQR); //Runs continuously (like infinite loop)
+        })
+        .catch(err => {
+            resultBox.style.display = 'block';
+            resultBox.className = 'alert alert-warning';
+            resultBox.textContent = 'Camera not accessible. Use manual entry below.';
+        });
+}
+
+function stopCamera() {
+    scanning = false;
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+        stream = null;
+    }
+    document.getElementById('stop-btn').style.display = 'none';
+    document.getElementById('start-btn').style.display = 'inline-block';
+}
+
+function scanQR() {
+    if (!scanning) return;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height); //Takes screenshot from video(capture frame)
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height); //Decode QR(Uses jsQR library)
+
+        if (code && code.data !== lastScanned) { //Prevent multiple scans(Avoids repeated API calls)
+            lastScanned = code.data;
+            sendCheckin(code.data);
+            setTimeout(() => { lastScanned = ''; }, 3000);
+        }
+    }
+    requestAnimationFrame(scanQR); //Runs continuously (like infinite loop)
+}
+
+function sendCheckin(qrData) {
+    fetch('/organiser/api/checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qr_data: qrData })
+    })
+    .then(res => res.json())
+    .then(data => {
+        resultBox.style.display = 'block';
+        if (data.success) {
+            resultBox.className = 'alert alert-success';
+            resultBox.textContent = data.message;
+            updateBadge(qrData, true);
+        } else {
+            resultBox.className = 'alert alert-danger';
+            resultBox.textContent = data.message;
+        }
+    });
+}
+
+function manualCheckin() {
+    const input = document.getElementById('manual-input').value.trim();
+    if (!input) return;
+    sendCheckin(input);
+    document.getElementById('manual-input').value = '';
+}
+
+function updateBadge(qrData, present) { //Update UI live (changes abset->present)
+    try {
+        const parts = qrData.split('-');
+        const regId = parts[2];
+        const badge = document.querySelector(`#reg-${regId} .badge`);
+        if (badge) {
+            badge.className = present ? 'badge bg-success' : 'badge bg-secondary';
+            badge.textContent = present ? 'Present' : 'Absent';
+        }
+    } catch(e) {}
+}
+
+// Start camera automatically on page load
+startCamera();
+</script>
+
+{% endblock %}

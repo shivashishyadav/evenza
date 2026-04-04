@@ -1,9 +1,9 @@
 # create events, check-in, manage
-from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, jsonify
 from flask_login import login_required, current_user
 from app.decorators import role_required
 from app import db
-from app.models import Event, Registration
+from app.models import Event, Registration, Attendance
 from datetime import datetime, timezone
 import os
 from werkzeug.utils import secure_filename
@@ -160,8 +160,98 @@ def my_events():
 
 
 # ----------------------------------ATTENDANCE CHECKIN------------------------------
-@organiser.route('/organiser/checkin')
+@organiser.route('/organiser/checkin/<int:event_id>')
 @login_required
 @role_required('organiser')
-def checkin():
-    return '<h2>Check-in — Coming Soon</h2>'
+def checkin(event_id):
+    event = Event.query.get_or_404(event_id) #fetch event from Database, 404 if not found
+
+    # make sure this event belongs to this organiser(prevents organiser from accessing someone else's event)
+    if(event.organiser_id!=current_user.id):
+        flash('You can only check-in your own events.', 'danger')
+        return redirect(url_for('organiser.my_events'))
+    
+    # only approved events can allow to check-in
+    if event.status != 'approved':
+        flash('Only approved events can be checked in.', 'danger')
+        return redirect(url_for('organiser.my_events'))
+
+    # get all confirmed registrations for this event(only confirmed user can be checked in)
+    registrations = Registration.query.filter_by(
+        event_id=event_id,
+        status='confirmed'
+    ).all()
+
+    # build attendance map - reg_id -> is_present
+    attendance_map = {}
+    for reg in registrations:
+        att = Attendance.query.filter_by(registration_id=reg.id).first()
+        attendance_map[reg.id] = att.is_present if att else False
+    
+    # sends data and render template
+    return render_template('organiser/checkin.html',
+        event=event,
+        registrations=registrations,
+        attendance_map=attendance_map
+    )
+
+
+# ─── API endpoint — called by JS when QR is scanned ──────────
+# This is called by JavaScript when QR is scanned
+@organiser.route('/organiser/api/checkin', methods=['POST'])
+@login_required
+@role_required('organiser')
+def api_checkin():
+
+    # get qr data
+    data = request.get_json()
+    qr_data = data.get('qr_data', '')
+
+    # QR format: EVENZA-REG-{reg_id}-{user_id}-{event_id}
+    try:
+        parts = qr_data.split('-')
+        # Prevent fake QR codes
+        if parts[0] != 'EVENZA' or parts[1] != 'REG':
+            raise ValueError
+        reg_id = int(parts[2])
+        user_id = int(parts[3])
+        event_id = int(parts[4])
+    except (ValueError, IndexError):
+        return jsonify({'success': False, 'message': 'Invalid QR code!'})
+    
+     # fetch registration
+    reg = Registration.query.get(reg_id)
+    if not reg:
+        return jsonify({'success': False, 'message': 'Registration not found!'})
+
+    # verify it matches
+    if reg.user_id != user_id or reg.event_id != event_id:
+        return jsonify({'success': False, 'message': 'QR code mismatch!'})
+
+    # check if already checked in(prevent duplicate scan)
+    existing = Attendance.query.filter_by(registration_id=reg_id).first()
+    if existing and existing.is_present:
+        return jsonify({'success': False, 'message': f'{reg.user.name} already checked in!'})
+
+    # mark attendance
+    if existing:
+        existing.is_present = True #mark attendance
+        existing.checked_in_at = datetime.now(timezone.utc)
+    else: #or create new
+        attendance = Attendance(
+            registration_id=reg_id,
+            is_present=True,
+            checked_in_at=datetime.now(timezone.utc)
+        )
+        db.session.add(attendance) 
+
+    # save in database
+    db.session.commit()
+
+    # Sent back to frontend
+    return jsonify({
+        'success': True,
+        'message': f'{reg.user.name} checked in successfully!',
+        'student_name': reg.user.name,
+        'event_title': reg.event.title
+    })
