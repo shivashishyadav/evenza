@@ -131,7 +131,7 @@ def register(event_id):
     # flush = "talk to DB, but don’t finalize"
     # commit = "final save"
 
-    from app.utils import generate_qr
+    from app.utils import generate_qr, send_confirmation_email
     #generate qr code only for confirmed registration
     # Waitlist users don’t have guaranteed seat
     if status == 'confirmed': 
@@ -141,6 +141,7 @@ def register(event_id):
     db.session.commit()
 
     if status == 'confirmed':
+        send_confirmation_email(current_user, event, qr_filename) # send mail
         flash('Registered successfully! Your QR code is ready.', 'success')
     else:
         flash('Event full — added to waitlist.', 'warning')

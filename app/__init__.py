@@ -3,11 +3,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-
+from flask_mail import Mail
 from config import Config
 
-db = SQLAlchemy()
-login_manager = LoginManager()
+db = SQLAlchemy() # empty object
+login_manager = LoginManager() # empty object
+mail = Mail() # empty() object
 
 def create_app():
     '''Function that builds app'''
@@ -17,6 +18,7 @@ def create_app():
     db.init_app(app) #Connects Database (SQLAlchemy)
     login_manager.init_app(app) #Login system
     login_manager.login_view = 'auth.login' #If user not logged in, redirect to login page
+    mail.init_app(app) #Attach the Mail system to this Flask app and load its configuration
 
     from app.models import User
     @login_manager.user_loader

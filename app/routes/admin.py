@@ -3,6 +3,8 @@ from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required
 from app.decorators import role_required
 
+from app.utils import send_reminder_email
+from app.models import Event, Registration
 from app import db
 from app.models import Event
 
@@ -76,6 +78,28 @@ def reject_event(event_id):
     db.session.commit()
     flash(f'"{event.title}" has been rejected.', 'danger')
     return redirect(url_for('admin.manage_events'))
+
+
+# ----------------------------------SEND REMINDER----------------------------
+
+@admin.route('/admin/send-reminders/<int:event_id>', methods=['POST'])
+@login_required
+@role_required('admin')
+def send_reminders(event_id):
+    event = Event.query.get_or_404(event_id)
+    registrations = Registration.query.filter_by(
+        event_id=event_id,
+        status='confirmed'
+    ).all() # get all registered student, for this event(status = 'confirmed')
+
+    count = 0 # how many email did we send?
+    for reg in registrations:
+        send_reminder_email(reg.user, event) #one email per student
+        count += 1
+
+    flash(f'Reminder emails sent to {count} students!', 'success')
+    return redirect(url_for('admin.manage_events'))
+
 
 
 # ---------------------------MANAGE USERS-------------------------------------
