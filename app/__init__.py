@@ -16,13 +16,19 @@ def create_app():
     app.config.from_object(Config) #Loads config from config.py
 
     db.init_app(app) #Connects Database (SQLAlchemy)
+
     login_manager.init_app(app) #Login system
     login_manager.login_view = 'auth.login' #If user not logged in, redirect to login page
     mail.init_app(app) #Attach the Mail system to this Flask app and load its configuration
 
-    from app.models import User
+    from app import models
+    # THEN create tables
+    with app.app_context():
+        db.create_all()
+
     @login_manager.user_loader
     def load_user(user_id):
+        from app.models import User
         return User.query.get(int(user_id))
 
     # Import blueprints
