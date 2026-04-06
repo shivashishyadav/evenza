@@ -255,3 +255,67 @@ def api_checkin():
         'student_name': reg.user.name,
         'event_title': reg.event.title
     })
+
+
+# ----------------------------------Attendance Export as CSV------------------------------
+from flask import Response #send custom data, directly return file content to browser
+
+@organiser.route('/organiser/export-attendance/<int:event_id>')
+@login_required
+@role_required('organiser')
+def export_attendance(event_id):
+    ''' Fetch event -> Verify ownership -> Collect data -> Convert to CSV -> Download file '''
+
+    # fetch or no found
+    event = Event.query.get_or_404(event_id)
+
+    # organiser can only export THEIR events
+    if event.organiser_id != current_user.id:
+        flash('You can only export your own events.', 'danger')
+        return redirect(url_for('organiser.my_events'))
+
+    registrations = Registration.query.filter_by(
+        event_id=event_id,
+        status='confirmed'
+    ).all()
+
+    # collect ALL data BEFORE leaving app context(collect everything early)
+    rows = [] #This will store structured data for CSV
+    for reg in registrations: #Check if user attended
+        # fetch attendance: Check if user attended
+        attendance = Attendance.query.filter_by(
+            registration_id=reg.id
+        ).first()
+
+        is_present = 'Yes' if attendance and attendance.is_present else 'No' #Convert attendance to readable format(Yes/No)
+
+        # 05 Apr 2026, 10:30 AM, else —
+        checked_in_at = (
+            attendance.checked_in_at.strftime('%d %b %Y, %I:%M %p')
+            if attendance and attendance.checked_in_at else '—'
+        )
+
+        rows.append({
+            'name': reg.user.name,
+            'email': reg.user.email,
+            'registered_at': reg.registered_at.strftime('%d %b %Y'),
+            'status': reg.status,
+            'is_present': is_present,
+            'checked_in_at': checked_in_at
+        })
+
+    # now build CSV from already-collected data
+    def generate():
+        yield 'Name,Email,Registration Date,Status,Attended,Check-in Time\n' # first line of csv(column)
+        for row in rows:
+            yield f'"{row["name"]}","{row["email"]}","{row["registered_at"]}","{row["status"]}","{row["is_present"]}","{row["checked_in_at"]}"\n'
+
+    filename = f"{event.title.replace(' ', '_')}_attendance.csv"
+
+    return Response(
+        generate(),
+        mimetype='text/csv',
+        headers={
+            'Content-Disposition': f'attachment; filename={filename}'
+        }
+    ) #Don’t open a page — just download this file(so externally no url rendering like - /organiser/export-attendance/5)
