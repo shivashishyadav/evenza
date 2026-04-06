@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h4 class="mb-4">Manage Users</h4>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Registrations</th>
+                <th>Joined</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user, reg_count in users_data %}
+            <tr>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    {% if user.role == 'admin' %}
+                        <span class="badge bg-danger">Admin</span>
+                    {% elif user.role == 'organiser' %}
+                        <span class="badge bg-info text-white">Organiser</span>
+                    {% else %}
+                        <span class="badge bg-primary">Student</span>
+                    {% endif %}
+                </td>
+                <td>{{ reg_count }}</td>
+                <td>{{ user.created_at.strftime('%d %b %Y') }}</td>
+                <td>
+                    {% if user.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.id != current_user.id %}
+                        <form method="POST" action="{{ url_for('admin.toggle_user', user_id=user.id) }}">
+                            {% if user.is_active %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    Deactivate
+                                </button>
+                            {% else %}
+                                <button type="submit" class="btn btn-outline-success btn-sm">
+                                    Activate
+                                </button>
+                            {% endif %}
+                        </form>
+                    {% else %}
+                        <span class="text-muted small">— You —</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

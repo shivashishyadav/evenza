@@ -16,6 +16,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='student') # student, organiser, admin
     created_at = db.Column(db.DateTime(timezone=True), default=lambda:datetime.now(timezone.utc))
+    is_active = db.Column(db.Boolean, default=True) # added later here for admin can activate or deactivate users
 
     def __repr__(self):
         return f'<User {self.email} {self.role}>'

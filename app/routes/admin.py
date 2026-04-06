@@ -1,6 +1,6 @@
 # approve events, manage users
 from flask import Blueprint, render_template, redirect, url_for, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 from app.decorators import role_required
 
 from app.utils import send_reminder_email
@@ -81,7 +81,6 @@ def reject_event(event_id):
 
 
 # ----------------------------------SEND REMINDER----------------------------
-
 @admin.route('/admin/send-reminders/<int:event_id>', methods=['POST'])
 @login_required
 @role_required('admin')
@@ -100,14 +99,6 @@ def send_reminders(event_id):
     flash(f'Reminder emails sent to {count} students!', 'success')
     return redirect(url_for('admin.manage_events'))
 
-
-
-# ---------------------------MANAGE USERS-------------------------------------
-@admin.route('/admin/manage-users')
-@login_required
-@role_required('admin')
-def manage_users():
-    return '<h2>Manage Users — Coming Soon</h2>'
 
 
 # ----------------------------------REPORTS---------------------------------
@@ -162,3 +153,43 @@ def reports():
         attendance_rate=attendance_rate,
         top_events=top_events
     )
+
+
+# ---------------------------MANAGE USERS-------------------------------------
+@admin.route('/admin/manage-users')
+@login_required
+@role_required('admin')
+def manage_users():
+    users = User.query.order_by(User.created_at.desc()).all() #list of(Fetch all users from database, Sort users by latest created first)
+
+    users_data = [] #for each user: number of events they registered for
+    for user in users:
+        # Registration.query : accessing registration table
+        # .filter_by(user_id=user.id) : Get only registrations of this user
+        # .count() : Count how many events the user registered for
+        reg_count = Registration.query.filter_by(user_id=user.id).count()
+        users_data.append((user, reg_count))
+
+    return render_template('admin/manage_users.html', users_data=users_data)
+
+
+
+# ---------------------------------Toggle User(Activate/Deactivate)---------------------------------
+@admin.route('/admin/toggle-user/<int:user_id>', methods=['POST'])
+@login_required
+@role_required('admin')
+def toggle_user(user_id): #Function receives user_id from the URL.
+    user = User.query.get_or_404(user_id) #Find user with given user_id
+
+    # prevent admin from deactivating themselves (Admin accidentally locking themselves out)
+    if user.id == current_user.id:
+        flash('You cannot deactivate your own account!', 'danger')
+        return redirect(url_for('admin.manage_users'))
+    
+    user.is_active = not user.is_active # toggle: if True becomes False, if False becomes True
+
+    db.session.commit() #save changes to the database.
+
+    status = 'activated' if user.is_active else 'deactivated' # if active activated, else deactivated
+    flash(f'{user.name} has been {status}.', 'success')
+    return redirect(url_for('admin.manage_users'))

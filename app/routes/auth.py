@@ -86,6 +86,11 @@ def login():
             flash('Invalid email or password', 'danger')
             return redirect(url_for('auth.login'))
         
+        # check if account is active(because it might be possible admin has been toggled(activated/deactivated) this user)
+        if not user.is_active:
+            flash('Your account has been deactivated. Contact admin.', 'danger')
+            return redirect(url_for('auth.login'))
+
         login_user(user) #session["user_id"] = user.id
 
         # Flask flash messages are stored in the session until they are displayed. So when we login -> flash is stored -> redirect to dashboard (stub page, no template) -> flash never displays -> logout -> redirect to login page -> NOW both the old welcome flash AND logout flash display together.
