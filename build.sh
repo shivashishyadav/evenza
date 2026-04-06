@@ -21,6 +21,14 @@ with app.app_context():
     email = os.environ.get('ADMIN_EMAIL')
     password = os.environ.get('ADMIN_PASSWORD')
 
+    print('ENV EMAIL:', email)
+    print('ENV PASSWORD:', password)
+
+    users = User.query.all()
+    print('ALL USERS IN DB:')
+    for u in users:
+        print('User ->', u.email, '| role:', u.role)
+
     if not email or not password:
         print('ERROR: ADMIN_EMAIL and ADMIN_PASSWORD must be set!')
         exit(1)
