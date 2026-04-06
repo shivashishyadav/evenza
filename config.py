@@ -12,15 +12,18 @@ load_dotenv() #read .env file
 # login cookies
 class Config:
     # Use environment variable if it exists, otherwise use default value(dev)
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
+    SECRET_KEY = os.environ.get('SECRET_KEY') #or 'dev-secret-key'
 
-    # PostgreSQL in production, SQLite in development
-    DATABASE_URL = os.environ.get('DATABASE_URL', '')
-    if DATABASE_URL.startswith('postgres://'):
-        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    # Database configuration
+    DATABASE_URL = os.environ.get('DATABASE_URL')
 
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or 'sqlite:///evenza.db' #Database connection
-    SQLALCHEMY_TRACK_MODIFICATIONS = False #Saves memory
+    if DATABASE_URL:
+        if DATABASE_URL.startswith('postgres://'):
+            DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL or 'sqlite:///evenza.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024  # 2MB max upload
 
     # Flask-Mail Configuration

@@ -19,9 +19,13 @@ import os
 
 app = create_app()
 with app.app_context():
-    email = os.environ.get('ADMIN_EMAIL', 'admin@evenza.com')
-    password = os.environ.get('ADMIN_PASSWORD', 'admin123')
-    
+    email = os.environ.get('ADMIN_EMAIL')
+    password = os.environ.get('ADMIN_PASSWORD')
+
+    if not email or not password:
+        print('ERROR: ADMIN_EMAIL and ADMIN_PASSWORD must be set!')
+        exit(1)
+
     existing = User.query.filter_by(email=email).first()
     if not existing:
         admin = User(
@@ -32,7 +36,7 @@ with app.app_context():
         )
         db.session.add(admin)
         db.session.commit()
-        print('Admin created!')
+        print('Admin created successfully!')
     else:
         print('Admin already exists!')
 "
