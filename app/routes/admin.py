@@ -4,7 +4,7 @@ from flask_login import login_required
 from app.decorators import role_required
 
 from app.utils import send_reminder_email
-from app.models import Event, Registration
+from app.models import Event, Registration, User, Attendance
 from app import db
 from app.models import Event
 
@@ -110,9 +110,55 @@ def manage_users():
     return '<h2>Manage Users — Coming Soon</h2>'
 
 
-# ----------------------------------REPORSTS---------------------------------
+# ----------------------------------REPORTS---------------------------------
 @admin.route('/admin/reports')
 @login_required
 @role_required('admin')
 def reports():
-    return '<h2>Reports — Coming Soon</h2>'
+    
+    # user stats
+    total_users = User.query.count()
+    total_students = User.query.filter_by(role='student').count()
+    total_organisers = User.query.filter_by(role='organiser').count()
+
+    # event stats
+    total_events = Event.query.count()
+    approved_events = Event.query.filter_by(status='approved').count()
+    pending_events = Event.query.filter_by(status='pending').count()
+    rejected_events = Event.query.filter_by(status='rejected').count()
+
+    # registration stats
+    total_regs = Registration.query.count()
+    confirmed_regs = Registration.query.filter_by(status='confirmed').count()
+    waitlist_regs = Registration.query.filter_by(status='waitlist').count()
+
+    # attendance stats
+    total_attended = Attendance.query.filter_by(is_present=True).count()
+    attendance_rate = round((total_attended / confirmed_regs * 100), 1) if confirmed_regs > 0 else 0
+
+    # top events by registration
+    top_events = db.session.query(
+        Event.title,
+        db.func.count(Registration.id).label('reg_count')
+    ).join(Registration, Event.id == Registration.event_id)\
+     .filter(Event.status == 'approved')\
+     .group_by(Event.id)\
+     .order_by(db.func.count(Registration.id).desc())\
+     .limit(5).all()
+
+
+    return render_template('admin/reports.html',
+        total_users=total_users,
+        total_students=total_students,
+        total_organisers=total_organisers,
+        total_events=total_events,
+        approved_events=approved_events,
+        pending_events=pending_events,
+        rejected_events=rejected_events,
+        total_regs=total_regs,
+        confirmed_regs=confirmed_regs,
+        waitlist_regs=waitlist_regs,
+        total_attended=total_attended,
+        attendance_rate=attendance_rate,
+        top_events=top_events
+    )

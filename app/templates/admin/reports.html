@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h4 class="mb-4">Reports & Analytics</h4>
+
+<!-- User Stats -->
+<h5 class="mb-3">Users</h5>
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <h2 class="text-primary fw-bold">{{ total_users }}</h2>
+            <p class="text-muted mb-0">Total Users</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <h2 class="text-success fw-bold">{{ total_students }}</h2>
+            <p class="text-muted mb-0">Students</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <h2 class="text-info fw-bold">{{ total_organisers }}</h2>
+            <p class="text-muted mb-0">Organisers</p>
+        </div>
+    </div>
+</div>
+
+<!-- Event Stats -->
+<h5 class="mb-3">Events</h5>
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h2 class="text-primary fw-bold">{{ total_events }}</h2>
+            <p class="text-muted mb-0">Total Events</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h2 class="text-success fw-bold">{{ approved_events }}</h2>
+            <p class="text-muted mb-0">Approved</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h2 class="text-warning fw-bold">{{ pending_events }}</h2>
+            <p class="text-muted mb-0">Pending</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h2 class="text-danger fw-bold">{{ rejected_events }}</h2>
+            <p class="text-muted mb-0">Rejected</p>
+        </div>
+    </div>
+</div>
+
+<!-- Registration & Attendance Stats -->
+<h5 class="mb-3">Registrations & Attendance</h5>
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h2 class="text-primary fw-bold">{{ total_regs }}</h2>
+            <p class="text-muted mb-0">Total Registrations</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h2 class="text-success fw-bold">{{ confirmed_regs }}</h2>
+            <p class="text-muted mb-0">Confirmed</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h2 class="text-warning fw-bold">{{ waitlist_regs }}</h2>
+            <p class="text-muted mb-0">Waitlist</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3">
+            <h2 class="text-success fw-bold">{{ attendance_rate }}%</h2>
+            <p class="text-muted mb-0">Attendance Rate</p>
+        </div>
+    </div>
+</div>
+
+<!-- Top Events Chart -->
+<div class="row">
+    <div class="col-md-7">
+        <h5 class="mb-3">Top Events by Registrations</h5>
+        <div class="card p-3">
+            <div style="position: relative; height: 300px;">
+                <canvas id="topEventsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <h5 class="mb-3">Event Status Breakdown</h5>
+        <div class="card p-3">
+            <div style="position: relative; height: 300px;">
+                <canvas id="eventStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// Top Events Bar Chart
+new Chart(document.getElementById('topEventsChart'), {
+    type: 'bar',
+    data: {
+        labels: [{% for event, count in top_events %}'{{ event }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Registrations',
+            data: [{% for event, count in top_events %}{{ count }}{% if not loop.last %},{% endif %}{% endfor %}],
+            backgroundColor: '#3b82f6',
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+    }
+});
+
+// Event Status Doughnut Chart
+new Chart(document.getElementById('eventStatusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Approved', 'Pending', 'Rejected'],
+        datasets: [{
+            data: [{{ approved_events }}, {{ pending_events }}, {{ rejected_events }}],
+            backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom' }
+        }
+    }
+});
+</script>
+
+{% endblock %}
