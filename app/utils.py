@@ -1,6 +1,7 @@
 # QR gen, PDF cert, email helpers
 import qrcode #generate QR codes from text/data
 import os
+import threading
 
 from flask_mail import Message
 from app import mail
@@ -36,7 +37,17 @@ def generate_qr(registration_id, user_id, event_id):
 
 
 # ============================== Verification Mail==========================================
+def send_async_email(app, msg):
+    with app.app_context():
+        try:
+            mail.send(msg)
+        except Exception as e:
+            print(f'Email error: {e}')
+
 def send_confirmation_email(student, event, qr_filename):
+    from flask import current_app
+    app = current_app._get_current_object()
+
     try:
         msg = Message(subject=f'Registration Confirmed - {event.title}', recipients=[student.email])
         msg.body= f'''Hi {student.name},
@@ -84,7 +95,9 @@ def send_confirmation_email(student, event, qr_filename):
                 headers={'Content-ID': '<qr_code>'}
             )
 
-        mail.send(msg)
+         # send in background thread
+        thread = threading.Thread(target=send_async_email, args=(app, msg))
+        thread.start()
 
     except Exception as e:
         print(f'Email error: {e}')
@@ -92,6 +105,9 @@ def send_confirmation_email(student, event, qr_filename):
 
 # =======================================Reminder=========================================
 def send_reminder_email(student, event):
+    from flask import current_app
+    app = current_app._get_current_object()
+
     try:
         msg = Message(
             subject=f'Reminder — {event.title} is on {event.date.strftime("%d %b %Y")}!',
@@ -111,7 +127,10 @@ def send_reminder_email(student, event):
             See you there!
             Team Evenza
         '''
-        mail.send(msg)
+
+        thread = threading.Thread(target=send_async_email, args=(app, msg))
+        thread.start()
+
     except Exception as e:
         print(f'Email error: {e}')
 
@@ -124,7 +143,7 @@ from reportlab.lib import colors # used for styling
 
 def generate_certificate(student_name, event_name, event_date, reg_id):
     """Create PDF -> Design layout -> Add text -> Save file -> Return filename"""
-    
+
     filename = f"cert_{reg_id}.pdf"  # create filename (cert_12.pdf) (why unique? because one registration one certificate name)
     folder = os.path.join('app', 'static', 'certificates') # define folder (app/static/certificates/)
     os.makedirs(folder, exist_ok=True)  # if folder exists okay, if not then create it
@@ -205,6 +224,9 @@ def generate_certificate(student_name, event_name, event_date, reg_id):
 
 # -----------------------------Send Certificate on Mail------------------------------------
 def send_certificate_email(student, event, cert_filename):
+    from flask import current_app
+    app = current_app._get_current_object()
+
     try:
         msg = Message(
             subject=f'Your Certificate — {event.title}',
@@ -236,6 +258,8 @@ def send_certificate_email(student, event, cert_filename):
                 f.read()
             )
 
-        mail.send(msg)
+        thread = threading.Thread(target=send_async_email, args=(app, msg))
+        thread.start()
+        
     except Exception as e:
         print(f'Certificate email error: {e}')
