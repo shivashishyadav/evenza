@@ -22,12 +22,11 @@ with app.app_context():
     email = os.environ.get('ADMIN_EMAIL')
     password = os.environ.get('ADMIN_PASSWORD')
 
-    if not email or not password:
-        print('ERROR: ADMIN_EMAIL and ADMIN_PASSWORD must be set!')
-        exit(1)
-
-    existing = User.query.filter_by(email=email).first()
-    if not existing:
+    if existing:
+        existing.password = generate_password_hash(password)
+        db.session.commit()
+        print('Admin updated successfully!')
+    else:
         admin = User(
             name='Admin',
             email=email,
@@ -36,7 +35,5 @@ with app.app_context():
         )
         db.session.add(admin)
         db.session.commit()
-        print('Admin created successfully!')
-    else:
-        print('Admin already exists!')
+    print('Admin created successfully!')
 "
