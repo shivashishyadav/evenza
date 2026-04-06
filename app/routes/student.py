@@ -2,8 +2,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.decorators import role_required
-from app.models import Event, Registration
+from app.models import Event, Registration, Certificate, Attendance
 from app import db
+
+from app.utils import generate_qr, send_confirmation_email, generate_certificate, send_certificate_email
 
 student = Blueprint('student', __name__)
 
@@ -131,7 +133,6 @@ def register(event_id):
     # flush = "talk to DB, but don’t finalize"
     # commit = "final save"
 
-    from app.utils import generate_qr, send_confirmation_email
     #generate qr code only for confirmed registration
     # Waitlist users don’t have guaranteed seat
     if status == 'confirmed': 
@@ -154,4 +155,69 @@ def register(event_id):
 @login_required
 @role_required('student')
 def my_certificates():
-    return '<h2>My Certificates - Coming Soon!</h2>'
+    '''Check registrations -> Check attendance -> Generate certificate (if needed) -> Show list'''
+
+    # get all confirmed registrations
+    regs = Registration.query.filter_by(
+        user_id=current_user.id,
+        status='confirmed'
+    ).all()
+
+    certs = [] #(event, certificate)
+    for reg in regs:
+        # check if student attended(Did user actually attend the event?)
+        attendance = Attendance.query.filter_by(
+            registration_id=reg.id,
+            is_present=True
+        ).first()
+
+        # registered but absent
+        if not attendance:
+            continue  # skip if not attended
+
+        # check if certificate already exists(“Did we already generate certificate?”)
+        cert = Certificate.query.filter_by(registration_id=reg.id).first()
+
+        if not cert:
+            # generate certificate
+            filename = generate_certificate(
+                student_name=current_user.name,
+                event_name=reg.event.title,
+                event_date=reg.event.date.strftime('%d %b %Y'),
+                reg_id=reg.id
+            )
+            cert = Certificate(
+                registration_id=reg.id,
+                file_path=filename
+            )
+            db.session.add(cert)
+            db.session.commit()
+            # send certificate email — only on first generation
+            send_certificate_email(current_user, reg.event, filename)
+
+        certs.append((reg.event, cert)) #event name + certificate name
+
+    # send data to frontend and shows the certificates list
+    return render_template('student/my_certificates.html', certs=certs)
+
+
+# -------------------------------Download Certificate------------------------
+from flask import send_from_directory,current_app #Flask helper to send files from a folder
+import os
+
+@student.route('/student/download-certificate/<int:cert_id>')
+@login_required
+@role_required('student')
+def download_certificate(cert_id):
+    """Check ownership -> Find file -> Send file as download"""
+
+    # fetch certificate if exists
+    cert = Certificate.query.get_or_404(cert_id) 
+
+    # security check — only owner can download
+    if cert.registration.user_id != current_user.id:
+        flash('You can only download your own certificates.', 'danger')
+        return redirect(url_for('student.my_certificates'))
+
+    folder = os.path.join(current_app.root_path, 'static', 'certificates') # build path like "/home/project/app/static/certificates"
+    return send_from_directory(folder, cert.file_path, as_attachment=True, download_name=f"{cert.registration.event.title}_certificate.pdf") #as_attachment=True: as_attachment=True

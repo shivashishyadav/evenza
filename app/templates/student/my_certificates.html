@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h4 class="mb-4">My Certificates</h4>
+
+{% if certs %}
+<div class="row">
+    {% for event, cert in certs %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+
+                <!-- certificate icon -->
+                <div style="font-size: 48px; margin-bottom: 12px;">🏅</div>
+
+                <h6 class="fw-bold">{{ event.title }}</h6>
+                <p class="text-muted small mb-1">{{ event.venue }}</p>
+                <p class="text-muted small mb-3">
+                    {{ event.date.strftime('%d %b %Y') }}
+                </p>
+
+                <span class="badge bg-success mb-3">Attended</span>
+
+                <div class="d-grid">
+                    <a href="{{ url_for('student.download_certificate', cert_id=cert.id) }}"
+                       class="btn btn-primary btn-sm">
+                        Download Certificate
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="alert alert-info">
+    No certificates yet. Attend events to earn certificates!
+    <a href="{{ url_for('student.events') }}" class="alert-link">Browse events →</a>
+</div>
+{% endif %}
+
+{% endblock %}

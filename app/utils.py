@@ -90,7 +90,7 @@ def send_confirmation_email(student, event, qr_filename):
         print(f'Email error: {e}')
 
 
-# ==============================Reminder===================================
+# =======================================Reminder=========================================
 def send_reminder_email(student, event):
     try:
         msg = Message(
@@ -114,4 +114,128 @@ def send_reminder_email(student, event):
         mail.send(msg)
     except Exception as e:
         print(f'Email error: {e}')
+
+
+# ----------------------------------Certificate Generation-------------------------------------
+# reportlab is a library to create PDFs
+from reportlab.pdfgen import canvas as pdf_canvas # canvas is something like a drawing board, we can draw something on this
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib import colors # used for styling
+
+def generate_certificate(student_name, event_name, event_date, reg_id):
+    """Create PDF -> Design layout -> Add text -> Save file -> Return filename"""
     
+    filename = f"cert_{reg_id}.pdf"  # create filename (cert_12.pdf) (why unique? because one registration one certificate name)
+    folder = os.path.join('app', 'static', 'certificates') # define folder (app/static/certificates/)
+    os.makedirs(folder, exist_ok=True)  # if folder exists okay, if not then create it
+    filepath = os.path.join(folder, filename) # final path (app/static/certificates/cert_12.pdf)
+
+    # page setup
+    width, height = landscape(A4) # page size
+    c = pdf_canvas.Canvas(filepath, pagesize=landscape(A4)) #create drawing surface c
+
+    # background color
+    c.setFillColor(colors.HexColor('#f0f4ff'))
+    c.rect(0, 0, width, height, fill=True, stroke=False)
+
+    # border
+    c.setStrokeColor(colors.HexColor('#1a56db'))
+    c.setLineWidth(6)
+    c.rect(20, 20, width - 40, height - 40, fill=False, stroke=True)
+
+    # inner border
+    c.setStrokeColor(colors.HexColor('#93c5fd'))
+    c.setLineWidth(2)
+    c.rect(30, 30, width - 60, height - 60, fill=False, stroke=True)
+
+    # title
+    c.setFillColor(colors.HexColor('#1a56db'))
+    c.setFont('Helvetica-Bold', 42)
+    c.drawCentredString(width / 2, height - 110, 'Certificate of Participation')
+
+    # divider line
+    c.setStrokeColor(colors.HexColor('#1a56db'))
+    c.setLineWidth(1.5)
+    c.line(100, height - 130, width - 100, height - 130)
+
+    # body text
+    c.setFillColor(colors.HexColor('#374151'))
+    c.setFont('Helvetica', 20)
+    c.drawCentredString(width / 2, height - 180, 'This is to certify that')
+
+    # student name
+    c.setFillColor(colors.HexColor('#1a56db'))
+    c.setFont('Helvetica-Bold', 36)
+    c.drawCentredString(width / 2, height - 240, student_name)
+
+    # underline student name
+    name_width = c.stringWidth(student_name, 'Helvetica-Bold', 36)
+    c.setStrokeColor(colors.HexColor('#1a56db'))
+    c.setLineWidth(1)
+    c.line(width/2 - name_width/2, height - 248, width/2 + name_width/2, height - 248)
+    
+    # participated text
+    c.setFillColor(colors.HexColor('#374151'))
+    c.setFont('Helvetica', 20)
+    c.drawCentredString(width / 2, height - 290, 'has successfully participated in')
+
+    # event name
+    c.setFillColor(colors.HexColor('#1a56db'))
+    c.setFont('Helvetica-Bold', 28)
+    c.drawCentredString(width / 2, height - 340, event_name)
+
+    # event date
+    c.setFillColor(colors.HexColor('#6b7280'))
+    c.setFont('Helvetica', 16)
+    c.drawCentredString(width / 2, height - 380, f'held on {event_date}')
+
+    # divider
+    c.setStrokeColor(colors.HexColor('#93c5fd'))
+    c.setLineWidth(1)
+    c.line(100, height - 420, width - 100, height - 420)
+
+    # footer
+    c.setFillColor(colors.HexColor('#6b7280'))
+    c.setFont('Helvetica', 13)
+    c.drawCentredString(width / 2, height - 450, 'Evenza — College Event Management System')
+
+    c.save() #Writes everything to disk
+    return filename #store in DB, send via email, show in UI
+
+
+# -----------------------------Send Certificate on Mail------------------------------------
+def send_certificate_email(student, event, cert_filename):
+    try:
+        msg = Message(
+            subject=f'Your Certificate — {event.title}',
+            recipients=[student.email]
+        )
+        msg.body = f'''Hi {student.name},
+
+            Congratulations on attending {event.title}!
+
+            Your participation certificate is attached to this email.
+
+            Thank you for being part of the event!
+            Team Evenza
+            '''
+        msg.html = f"""
+            <p>Hi {student.name},</p>
+            <p>Congratulations on attending <b>{event.title}</b>!</p>
+            <p>Your participation certificate is attached to this email.</p>
+            <p>Thank you for being part of the event!<br>Team Evenza</p>
+        """
+
+        # attach PDF
+        from flask import current_app
+        filepath = os.path.join(current_app.root_path, 'static', 'certificates', cert_filename)
+        with open(filepath, 'rb') as f:
+            msg.attach(
+                f"{event.title}_certificate.pdf",
+                "application/pdf",
+                f.read()
+            )
+
+        mail.send(msg)
+    except Exception as e:
+        print(f'Certificate email error: {e}')
