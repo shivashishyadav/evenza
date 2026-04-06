@@ -10,7 +10,6 @@ with app.app_context():
     db.create_all()
     print('Database tables created!')
 "
-
 python -c "
 from app import create_app, db
 from app.models import User
@@ -22,10 +21,15 @@ with app.app_context():
     email = os.environ.get('ADMIN_EMAIL')
     password = os.environ.get('ADMIN_PASSWORD')
 
+    if not email or not password:
+        print('ERROR: ADMIN_EMAIL and ADMIN_PASSWORD must be set!')
+        exit(1)
+
+    existing = User.query.filter_by(email=email).first()
     if existing:
         existing.password = generate_password_hash(password)
         db.session.commit()
-        print('Admin updated successfully!')
+        print('Admin password updated!')
     else:
         admin = User(
             name='Admin',
@@ -35,5 +39,5 @@ with app.app_context():
         )
         db.session.add(admin)
         db.session.commit()
-    print('Admin created successfully!')
+        print('Admin created successfully!')
 "
