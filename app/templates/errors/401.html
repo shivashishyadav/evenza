@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="text-center mt-5">
+    <h1 class="display-1 fw-bold text-warning">401</h1>
+    <h4 class="mb-3">Login Required</h4>
+    <p class="text-muted mb-4">Please login to access this page.</p>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login</a>
+</div>
+{% endblock %}
