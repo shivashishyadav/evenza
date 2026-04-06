@@ -4,8 +4,9 @@ from flask_login import login_required, current_user
 from app.decorators import role_required
 from app.models import Event, Registration, Certificate, Attendance
 from app import db
+from datetime import datetime, timezone
 
-from app.utils import generate_qr, send_confirmation_email, generate_certificate, send_certificate_email
+from app.utils import generate_qr, send_confirmation_email, generate_certificate, send_certificate_email, make_aware
 
 student = Blueprint('student', __name__)
 
@@ -20,11 +21,17 @@ def dashboard():
     confirmed = sum(1 for r in regs if r.status=='confirmed') #Count only those with status = confirmed
     waitlist = sum(1 for r in regs if r.status=='waitlist') #Events where user is not guaranteed a seat
 
-    # upcoming events only
-    from datetime import datetime, timezone
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
-    # Only events that haven’t happened yet, Ignore waitlist events
-    upcoming = [r for r in regs if r.event.date>now and r.status=='confirmed']
+    # # upcoming events only
+    # from datetime import datetime, timezone
+    # now = datetime.now(timezone.utc).replace(tzinfo=None)
+    # # Only events that haven’t happened yet, Ignore waitlist events
+    # upcoming = [r for r in regs if r.event.date>now and r.status=='confirmed']
+
+    now = datetime.now(timezone.utc)
+    upcoming = [
+        r for r in regs
+        if r.status == 'confirmed' and make_aware(r.event.date) > now
+    ]
 
     # Send data to template & return template
     return render_template('student/dashboard.html',
@@ -45,9 +52,15 @@ def my_events():
     total = len(regs)
     confirmed = sum(1 for r in regs if r.status == 'confirmed')
     waitlist = sum(1 for r in regs if r.status == 'waitlist')
-    from datetime import datetime, timezone
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
-    upcoming = [r for r in regs if r.event.date > now and r.status == 'confirmed']
+    # now = datetime.now(timezone.utc).replace(tzinfo=None)
+    # upcoming = [r for r in regs if r.event.date > now and r.status == 'confirmed']
+
+    now = datetime.now(timezone.utc)
+    upcoming = [
+        r for r in regs
+        if r.status == 'confirmed' and make_aware(r.event.date) > now
+    ]
+
     return render_template('student/dashboard.html',
         regs=regs,
         total=total,

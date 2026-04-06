@@ -260,6 +260,17 @@ def send_certificate_email(student, event, cert_filename):
 
         thread = threading.Thread(target=send_async_email, args=(app, msg))
         thread.start()
-        
+
     except Exception as e:
         print(f'Certificate email error: {e}')
+
+
+from datetime import datetime, timezone
+
+def make_aware(dt):
+    """Make datetime timezone-aware if it isn't already"""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
