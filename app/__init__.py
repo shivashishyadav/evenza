@@ -1,6 +1,6 @@
 # App factory — initialises Flask, SQLAlchemy, Flask-Login and registers all blueprints in one place.
 
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
@@ -40,15 +40,15 @@ def create_app():
     # Error handlers: With our error handler, we control exactly what the user sees
     @app.errorhandler(403)
     def forbidden(e):
-        return '<h2>403 - You do not have permission to access this page.</h2>', 403
+        return render_template('errors/403.html'), 403
 
     @app.errorhandler(404)
     def not_found(e):
-        return '<h2>404 - Page not found.</h2>', 404
+        return render_template('errors/404.html'), 404
 
     @app.errorhandler(401)
     def unauthorized(e):
-        return '<h2>401 - Please login first.</h2>', 401
+        return render_template('errors/401.html'), 401
     
 
     return app

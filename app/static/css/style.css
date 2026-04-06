@@ -1,28 +1,182 @@
-/* Evenza custom styles */
+/* ===========================
+   Evenza — Global Styles
+   =========================== */
 
 body {
     background-color: #f8f9fa;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===========================
+   Navbar
+   =========================== */
+.navbar {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
 .navbar-brand {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     letter-spacing: 1px;
+    font-weight: 700;
 }
 
 .nav-link {
-    font-size: 0.95rem;
+    font-size: 0.92rem;
+    transition: opacity 0.15s;
 }
 
+.nav-link:hover {
+    opacity: 0.8;
+}
+
+.navbar-nav .nav-link.active {
+    background-color: rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+/* ===========================
+   Cards
+   =========================== */
 .card {
     border: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    border-radius: 14px;
+    transition: transform 0.15s, box-shadow 0.15s;
 }
 
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+}
+
+/* ===========================
+   Buttons
+   =========================== */
 .btn {
     border-radius: 8px;
+    font-size: 0.9rem;
+    padding: 6px 16px;
 }
 
+.btn-primary {
+    background-color: #1a56db;
+    border-color: #1a56db;
+}
+
+.btn-primary:hover {
+    background-color: #1447c0;
+    border-color: #1447c0;
+}
+
+/* ===========================
+   Badges
+   =========================== */
+
+.badge {
+    font-weight: 500;
+    font-size: 0.78rem;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+
+/* ===========================
+   Tables
+   =========================== */
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table thead th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+}
+
+/* ===========================
+   Alerts
+   =========================== */
 .alert {
     border-radius: 10px;
+    border: none;
+    font-size: 0.92rem;
+}
+
+/* ===========================
+   Forms
+   =========================== */
+.form-control, .form-select {
+    border-radius: 8px;
+    font-size: 0.92rem;
+    border: 1.5px solid #e5e7eb;
+    padding: 8px 12px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #1a56db;
+    box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+}
+
+.form-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #374151;
+}
+
+/* ===========================
+   Stat Cards
+   =========================== */
+.stat-card {
+    border-radius: 14px;
+    padding: 1.25rem;
+    text-align: center;
+    background: white;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+.stat-card h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.stat-card p {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* ===========================
+   Page headings
+   =========================== */
+h4 {
+    font-weight: 600;
+    color: #111827;
+}
+
+h5 {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Fix right side navbar on mobile */
+@media (max-width: 991px) {
+    .navbar-nav.ms-auto {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255,255,255,0.2);
+        flex-direction: row !important;
+        align-items: center;
+    }
+}
+
+/* ===========================
+   Footer spacing
+   =========================== */
+.container {
+    padding-bottom: 2rem;
 }
