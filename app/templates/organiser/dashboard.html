@@ -2,87 +2,94 @@
 {% block title %}Organiser Dashboard — Evenza{% endblock %}
 {% block content %}
 
-<h4 class="mb-4">Organiser Dashboard</h4>
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">Management Console</h3>
+        <p class="text-muted small mb-0">Overview of your event lifecycle</p>
+    </div>
+    <a href="{{ url_for('organiser.create_event') }}" class="btn btn-primary shadow-sm">
+        <i class="bi bi-plus-lg"></i> New Event
+    </a>
+</div>
 
-<!-- Stats -->
-<div class="row g-3 mb-4">
+<div class="row g-4 mb-5">
     <div class="col-md-3">
-        <div class="card text-center p-3">
-            <h2 class="text-primary fw-bold">{{ total }}</h2>
-            <p class="text-muted mb-0">Total Events</p>
+        <div class="card border-0 shadow-sm text-center p-3">
+            <h1 class="fw-bold mb-0 text-primary">{{ total }}</h1>
+            <p class="text-muted small text-uppercase fw-bold mb-0">Total</p>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card text-center p-3">
-            <h2 class="text-warning fw-bold">{{ pending }}</h2>
-            <p class="text-muted mb-0">Pending</p>
+        <div class="card border-0 shadow-sm text-center p-3">
+            <h1 class="fw-bold mb-0 text-warning">{{ pending }}</h1>
+            <p class="text-muted small text-uppercase fw-bold mb-0">Pending</p>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card text-center p-3">
-            <h2 class="text-success fw-bold">{{ approved }}</h2>
-            <p class="text-muted mb-0">Approved</p>
+        <div class="card border-0 shadow-sm text-center p-3">
+            <h1 class="fw-bold mb-0 text-success">{{ approved }}</h1>
+            <p class="text-muted small text-uppercase fw-bold mb-0">Live</p>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card text-center p-3">
-            <h2 class="text-danger fw-bold">{{ rejected }}</h2>
-            <p class="text-muted mb-0">Rejected</p>
+        <div class="card border-0 shadow-sm text-center p-3">
+            <h1 class="fw-bold mb-0 text-danger">{{ rejected }}</h1>
+            <p class="text-muted small text-uppercase fw-bold mb-0">Archived</p>
         </div>
     </div>
 </div>
 
-<!-- Events table -->
-<h5 class="mb-3">Your Events</h5>
-
-{% if events_data %}
-<div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Title</th>
-                <th>Date</th>
-                <th>Capacity</th>
-                <th>Registered</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for event, count in events_data %}
-            <tr>
-                <td>{{ event.title }}</td>
-                <td>{{ event.date.strftime('%d %b %Y') }}</td>
-                <td>{{ event.capacity }}</td>
-                <td>{{ count }} / {{ event.capacity }}</td>
-                <td>
-                    {% if event.status == 'approved' %}
-                        <span class="badge bg-success">Approved</span>
-                    {% elif event.status == 'rejected' %}
-                        <span class="badge bg-danger">Rejected</span>
-                    {% else %}
-                        <span class="badge bg-warning text-dark">Pending</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if event.status == 'approved' %}
-                        <a href="{{ url_for('organiser.checkin', event_id=event.id) }}" 
-                        class="btn btn-success btn-sm">
-                            Check-in
-                        </a>
-                    {% else %}
-                        <span class="text-muted small">—</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="card border-0 shadow-sm overflow-hidden">
+    <div class="card-header bg-white py-3">
+        <h5 class="fw-bold mb-0">Current Event Pipeline</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr class="small text-uppercase text-muted">
+                    <th class="px-4">Event Details</th>
+                    <th>Attendance</th>
+                    <th>Status</th>
+                    <th class="text-end px-4">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event, count in events_data %}
+                <tr>
+                    <td class="px-4 py-3">
+                        <div class="fw-bold">{{ event.title }}</div>
+                        <div class="text-muted x-small">{{ event.date.strftime('%d %b %Y') }}</div>
+                    </td>
+                    <td>
+                        <div class="progress" style="height: 6px; width: 100px;">
+                            {% set percent = (count / event.capacity * 100) if event.capacity > 0 else 0 %}
+                            <div class="progress-bar bg-primary" style="width: {{ percent }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ count }} / {{ event.capacity }}</small>
+                    </td>
+                    <td>
+                        {% if event.status == 'approved' %}
+                            <span class="badge bg-success-subtle text-success border border-success">Approved</span>
+                        {% elif event.status == 'rejected' %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger">Rejected</span>
+                        {% else %}
+                            <span class="badge bg-warning-subtle text-warning border border-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end px-4">
+                        {% if event.status == 'approved' %}
+                            <a href="{{ url_for('organiser.checkin', event_id=event.id) }}" class="btn btn-outline-success btn-sm rounded-pill px-3">
+                                <i class="bi bi-person-check"></i> Check-in
+                            </a>
+                        {% else %}
+                            <span class="text-muted opacity-50">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-{% else %}
-<div class="alert alert-info">
-    No events yet. <a href="{{ url_for('organiser.create_event') }}">Create your first event!</a>
-</div>
-{% endif %}
 
 {% endblock %}

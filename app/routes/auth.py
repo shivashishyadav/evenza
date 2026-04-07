@@ -18,7 +18,9 @@ def home():
             return redirect(url_for('organiser.dashboard'))
         else:
             return redirect(url_for('student.dashboard'))
-    return redirect(url_for('auth.login'))
+        
+    # NEW LOGIC: If NOT logged in, show the landing page instead of redirecting to login
+    return render_template('home.html')
 
 
 @auth.route('/register', methods=['GET', 'POST'])
@@ -111,4 +113,4 @@ def login():
 def logout():
     logout_user() # clear session, session["user_id"] removed
     flash('Logged out successfully', 'success')
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('auth.home'))

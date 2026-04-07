@@ -2,119 +2,117 @@
 {% block title %}Manage Events — Evenza{% endblock %}
 {% block content %}
 
-<div class="row mb-4">
-    <div class="col">
-        <h4>Manage Events</h4>
-        <p class="text-muted">Review and approve or reject events submitted by organisers.</p>
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Event Management</h4>
+        <p class="text-muted mb-0">Review, approve, or reject submissions from organisers.</p>
+    </div>
+    <div class="text-end">
+        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2 rounded-pill">
+            <i class="bi bi-clock-history me-1"></i> {{ pending|length }} Pending Review
+        </span>
     </div>
 </div>
-
-<!-- pending events -->
- <h5 class="mb-3">
-    <!-- show number of pending events -->
-    <span class="badge bg-warning text-dark">{{ pending|length }}</span>
- </h5>
 
 {% if pending %}
-    <div class="row">
-        {% for event in pending %}
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="card-title mb-0">{{ event.title }}</h5>
-                        <span class="badge bg-warning text-dark">Pending</span>
+<div class="row g-4 mb-5">
+    {% for event in pending %}
+    <div class="col-md-6 col-xl-4">
+        <div class="card border-0 shadow-sm h-100 overflow-hidden">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="fw-bold text-dark mb-0">{{ event.title }}</h5>
+                </div>
+                
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-light rounded-circle p-2 me-2">
+                        <i class="bi bi-person text-primary"></i>
                     </div>
-
-                    <p class="text-muted small mb-1">
-                        by {{ event.organiser.name }}
-                    </p>
-
-                    <hr>
-
-                    <p class="mb-1"><strong>Venue:</strong> {{ event.venue }}</p>
-                    <p class="mb-1"><strong>Date:</strong> {{ event.date.strftime('%d %b %Y, %I:%M %p') }}</p>
-                    <p class="mb-1"><strong>Capacity:</strong> {{ event.capacity }} seats</p>
-
-                    {% if event.description %}
-                    <p class="mt-2 text-muted small">{{ event.description }}</p>
-                    {% endif %}
-
+                    <span class="small text-muted">Organised by <strong class="text-dark">{{ event.organiser.name }}</strong></span>
                 </div>
 
-                <div class="card-footer d-flex gap-2">
-                    <form method="POST" action="{{ url_for('admin.approve_event', event_id=event.id) }}">
-                        <button type="submit" class="btn btn-success btn-sm">
-                            Approve
-                        </button>
-                    </form>
-                    <form method="POST" action="{{ url_for('admin.reject_event', event_id=event.id) }}">
-                        <button type="submit" class="btn btn-danger btn-sm">
-                            Reject
-                        </button>
-                    </form>
+                <div class="bg-light rounded-3 p-3 mb-3">
+                    <div class="small mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i>{{ event.venue }}</div>
+                    <div class="small mb-2"><i class="bi bi-calendar3 me-2 text-primary"></i>{{ event.date.strftime('%d %b %Y, %I:%M %p') }}</div>
+                    <div class="small"><i class="bi bi-people me-2 text-primary"></i>{{ event.capacity }} Seats Capacity</div>
                 </div>
+
+                {% if event.description %}
+                <p class="text-muted small mb-0 text-truncate-2">{{ event.description }}</p>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-white border-top-0 p-4 pt-0 d-flex gap-2">
+                <form method="POST" action="{{ url_for('admin.approve_event', event_id=event.id) }}" class="flex-grow-1">
+                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold btn-sm">
+                        <i class="bi bi-check-lg me-1"></i> Approve
+                    </button>
+                </form>
+                <form method="POST" action="{{ url_for('admin.reject_event', event_id=event.id) }}" class="flex-grow-1">
+                    <button type="submit" class="btn btn-outline-danger w-100 rounded-pill fw-bold btn-sm">
+                        <i class="bi bi-x-lg me-1"></i> Reject
+                    </button>
+                </form>
             </div>
         </div>
-        {% endfor %}
     </div>
-
+    {% endfor %}
+</div>
 {% else %}
-    <div class="alert alert-info">No pending events right now.</div>
+<div class="card border-0 shadow-sm mb-5">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-shield-check text-success display-4"></i>
+        <p class="text-muted mt-3 mb-0">Inbox clear! No events are currently pending approval.</p>
+    </div>
+</div>
 {% endif %}
 
-<!-- Approved & Rejected Events -->
-<h5 class="mt-4 mb-3">All Events</h5>
-
-{% if all_events %}
-<div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Title</th>
-                <th>Organiser</th>
-                <th>Date</th>
-                <th>Capacity</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for event in all_events %}
-            <tr>
-                <td>{{ event.title }}</td>
-                <td>{{ event.organiser.name }}</td>
-                <td>{{ event.date.strftime('%d %b %Y') }}</td>
-                <td>{{ event.capacity }}</td>
-                <td>
-                    {% if event.status == 'approved' %}
-                        <span class="badge bg-success">Approved</span>
-                    {% elif event.status == 'rejected' %}
-                        <span class="badge bg-danger">Rejected</span>
-                    {% else %}
-                        <span class="badge bg-warning text-dark">Pending</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if event.status == 'approved' %}
-                        <form method="POST" action="{{ url_for('admin.send_reminders', event_id=event.id) }}" class="d-inline">
-                            <button type="submit" class="btn btn-info btn-sm text-white">
-                                Send Reminders
+<h5 class="fw-bold mb-3">Full Event Registry</h5>
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">Event Details</th>
+                    <th>Organiser</th>
+                    <th>Date</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-end pe-4">Utility</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in all_events %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="fw-bold text-dark">{{ event.title }}</div>
+                        <div class="text-muted small">{{ event.venue }}</div>
+                    </td>
+                    <td>{{ event.organiser.name }}</td>
+                    <td class="small">{{ event.date.strftime('%d %b %Y') }}</td>
+                    <td class="text-center">
+                        {% if event.status == 'approved' %}
+                            <span class="badge rounded-pill bg-success-subtle text-success px-3">Approved</span>
+                        {% elif event.status == 'rejected' %}
+                            <span class="badge rounded-pill bg-danger-subtle text-danger px-3">Rejected</span>
+                        {% else %}
+                            <span class="badge rounded-pill bg-warning-subtle text-warning px-3">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end pe-4">
+                        {% if event.status == 'approved' %}
+                        <form method="POST" action="{{ url_for('admin.send_reminders', event_id=event.id) }}">
+                            <button type="submit" class="btn btn-link btn-sm text-primary p-0 text-decoration-none fw-bold">
+                                <i class="bi bi-bell-fill me-1"></i> Remind Users
                             </button>
                         </form>
-                    {% else %}
+                        {% else %}
                         <span class="text-muted small">—</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-
-{% else %}
-    <div class="alert alert-info">No events found.</div>
-{% endif %}
 
 {% endblock %}

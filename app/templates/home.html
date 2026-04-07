@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block title %}Evenza — Stress-Free Events{% endblock %}
+{% block content %}
+
+<style>
+    .hero-heading {
+        background: linear-gradient(135deg, #1a56db 0%, #7c3aed 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #1a56db 0%, #7c3aed 100%);
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
+    }
+
+    /* RESPONSIVE ILLUSTRATION SYSTEM */
+    .illustration-container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem 0;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .event-card-main {
+        width: 100%;
+        max-width: 400px;
+        background: white;
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        animation: float 6s ease-in-out infinite;
+        z-index: 2;
+        position: relative;
+    }
+
+    .scan-card-overlay {
+        position: absolute;
+        width: 220px;
+        background: white;
+        border-radius: 18px;
+        padding: 16px;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+        border: 2px solid #7c3aed;
+        z-index: 3;
+        /* Positioned relative to the container */
+        bottom: 10%;
+        right: 0%;
+        animation: float 6s ease-in-out infinite;
+        animation-delay: 1s;
+    }
+
+    /* Hide overlap on small tablets to prevent clutter */
+    @media (max-width: 991px) {
+        .scan-card-overlay {
+            width: 180px;
+            right: 5%;
+            bottom: 5%;
+        }
+    }
+
+    /* On mobile, stack them or hide the small one */
+    @media (max-width: 576px) {
+        .scan-card-overlay {
+            display: none; /* Keeps the UI clean on small phones */
+        }
+        .display-3 {
+            font-size: 2.5rem;
+        }
+    }
+
+    .glass-circle {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(26, 86, 219, 0.1), rgba(124, 58, 237, 0.1));
+        filter: blur(20px);
+        z-index: 1;
+    }
+</style>
+
+<div class="container overflow-hidden">
+    <div class="row align-items-center py-5 min-vh-100">
+        
+        <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0">
+            <h1 class="display-3 fw-bold text-dark mb-3">
+                Manage Events <br>
+                <span class="hero-heading">Without the Stress.</span>
+            </h1>
+            <p class="lead text-muted mb-4 px-3 px-lg-0">
+                The all-in-one platform for students and organisers. 
+                Scan QR codes for lightning-fast check-ins and track live attendance.
+            </p>
+            
+            <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-gradient btn-lg px-4 px-md-5 rounded-pill fw-bold">
+                    Get Started <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg px-4 px-md-5 rounded-pill border fw-bold text-muted">
+                    Sign In
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 illustration-container">
+            <div class="glass-circle" style="width: 300px; height: 300px; top: -50px; right: -50px;"></div>
+            
+            <div class="event-card-main">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 mb-2">Upcoming Tech-Fest</span>
+                        <h4 class="fw-bold text-dark mb-0">Hackathon 2k26</h4>
+                    </div>
+                    <div class="d-flex">
+                        <div class="bg-primary rounded-circle shadow-sm" style="width:32px; height:32px; border:2px solid white;"></div>
+                        <div class="bg-purple rounded-circle shadow-sm ms-n2" style="width:32px; height:32px; border:2px solid white; background: #7c3aed;"></div>
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-light rounded-4 text-center border">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=EVENZA_PREVIEW" 
+                         alt="QR Code" class="img-fluid rounded mb-3" style="max-width: 120px;">
+                    <div class="fw-bold text-dark mb-1">Ticket #7390</div>
+                    <div class="text-success small fw-bold"><i class="bi bi-patch-check-fill me-1"></i> Verified Entry</div>
+                </div>
+                
+                <div class="mt-4 d-flex justify-content-between text-muted small fw-medium">
+                    <span><i class="bi bi-geo-alt me-1"></i> Hall A</span>
+                    <span><i class="bi bi-clock me-1"></i> 10:00 AM</span>
+                </div>
+            </div>
+
+            <div class="scan-card-overlay">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-success-subtle p-2 rounded-3">
+                        <i class="bi bi-qr-code-scan text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold small text-dark">Shivashish Yadav</div>
+                        <div class="text-muted" style="font-size: 0.7rem;">Checked in 2s ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

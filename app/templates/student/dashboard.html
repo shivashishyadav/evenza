@@ -2,116 +2,101 @@
 {% block title %}Dashboard — Evenza{% endblock %}
 {% block content %}
 
-
-<h4 class="mb-4">Welcome, {{ current_user.name }}!</h4>
-
-<!-- Stats row -->
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card text-center p-3">
-            <h2 class="text-primary fw-bold">{{ total }}</h2>
-            <p class="text-muted mb-0">Total Registered</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-center p-3">
-            <h2 class="text-success fw-bold">{{ confirmed }}</h2>
-            <p class="text-muted mb-0">Confirmed</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-center p-3">
-            <h2 class="text-warning fw-bold">{{ waitlist }}</h2>
-            <p class="text-muted mb-0">On Waitlist</p>
-        </div>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold">Welcome back, <span class="text-primary">{{ current_user.name }}</span>!</h4>
+    <span class="text-muted small">{{ now.strftime('%A, %d %B') if now else '' }}</span>
 </div>
 
-
-<!-- Upcoming events -->
-<h5 class="mb-3">Upcoming Events</h5>
-
-{% if upcoming %}
-<!-- 
-    r=Registration object
-    r.event = related Event
-    Registration->Event relationship here
--->
-<div class="row">
-    {% for r in upcoming %}
-    <div class="col-md-4 mb-3">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <h6 class="fw-bold">{{ r.event.title }}</h6>
-                <p class="text-muted small mb-1">{{ r.event.venue }}</p>
-                <p class="text-muted small mb-2">{{ r.event.date.strftime('%d %b %Y, %I:%M %p') }}</p>
-                <span class="badge bg-success mb-2">Confirmed</span>
-
-                <!-- if qr exists -->
-                {% if r.qr_code %}
-                    <div class="mt-2">
-                        <img src="{{ url_for('student.get_qr', reg_id=r.id) }}"
-                            alt="QR Code"
-                            width="150"
-                            class="img-fluid">
-                        <p class="text-muted small mt-1">Show this at the venue</p>
-                    </div>
-                {% endif %}
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card stat-card border-start border-primary border-4 p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-muted mb-0 small uppercase fw-bold">Registrations</p>
+                    <h2 class="fw-bold mb-0">{{ total }}</h2>
+                </div>
             </div>
         </div>
     </div>
-    {% endfor %}
+    <div class="col-md-4">
+        <div class="card stat-card border-start border-success border-4 p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-muted mb-0 small uppercase fw-bold">Confirmed</p>
+                    <h2 class="fw-bold mb-0 text-success">{{ confirmed }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card border-start border-warning border-4 p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-muted mb-0 small uppercase fw-bold">Waitlist</p>
+                    <h2 class="fw-bold mb-0 text-warning">{{ waitlist }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Prevents empty UI -->
-{% else %}
-<div class="alert alert-info">
-    No upcoming events. <a href="{{ url_for('student.events') }}">Browse events</a> to register!
-</div>
-{% endif %}
-
-
-<!-- All registrations -->
-<h5 class="mt-4 mb-3">All Registrations</h5>
-
-<!-- Show only if user has registrations -->
-{% if regs %}
-<div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Event</th>
-                <th>Date</th>
-                <th>Venue</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for r in regs %}
-            <tr>
-                <td>{{ r.event.title }}</td>
-                <td>{{ r.event.date.strftime('%d %b %Y') }}</td>
-                <td>{{ r.event.venue }}</td>
-                <td>
-                    {% if r.status == 'confirmed' %}
-                        <span class="badge bg-success">Confirmed</span>
-                    {% elif r.status == 'waitlist' %}
-                        <span class="badge bg-warning text-dark">Waitlist</span>
-                    {% else %}
-                        <span class="badge bg-danger">Cancelled</span>
-                    {% endif %}
-                </td>
-            </tr>
+<div class="row">
+    <div class="col-lg-8">
+        <h5 class="fw-bold mb-3 d-flex align-items-center">
+            Upcoming Events <span class="badge bg-primary ms-2">{{ upcoming|length }}</span>
+        </h5>
+        
+        {% if upcoming %}
+        <div class="row g-3">
+            {% for r in upcoming %}
+            <div class="col-md-6">
+                <div class="card h-100 overflow-hidden">
+                    <div class="bg-primary py-1"></div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="fw-bold mb-0">{{ r.event.title }}</h6>
+                            <span class="badge bg-success-subtle text-success border border-success">Confirmed</span>
+                        </div>
+                        <p class="text-muted small mb-1"><i class="bi bi-geo-alt"></i> {{ r.event.venue }}</p>
+                        <p class="text-muted small mb-3"><i class="bi bi-calendar-event"></i> {{ r.event.date.strftime('%d %b, %I:%M %p') }}</p>
+                        
+                        {% if r.qr_code %}
+                        <div class="text-center bg-light p-3 rounded-4">
+                            <img src="{{ url_for('student.get_qr', reg_id=r.id) }}" alt="QR" width="120" class="img-fluid rounded">
+                            <p class="text-muted x-small mt-2 mb-0">Ticket ID: #{{ r.id }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
-</div>
+        </div>
+        {% else %}
+        <div class="card p-5 text-center bg-light border-dashed">
+            <p class="text-muted">No events on your schedule.</p>
+            <a href="{{ url_for('student.events') }}" class="btn btn-primary btn-sm mx-auto">Find Events</a>
+        </div>
+        {% endif %}
+    </div>
 
-<!-- avoids blank page -->
-{% else %}
-<div class="alert alert-info">
-    No registrations yet. <a href="{{ url_for('student.events') }}">Browse events!</a>
+    <div class="col-lg-4">
+        <h5 class="fw-bold mb-3">Recent Activity</h5>
+        <div class="card p-0 overflow-hidden">
+            <ul class="list-group list-group-flush">
+                {% for r in regs[:5] %}
+                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                    <div>
+                        <div class="fw-bold small">{{ r.event.title }}</div>
+                        <div class="text-muted x-small">{{ r.event.date.strftime('%d %b') }}</div>
+                    </div>
+                    <span class="badge {% if r.status == 'confirmed' %}bg-success{% else %}bg-warning{% endif %} rounded-pill">
+                        {{ r.status }}
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </div>
-{% endif %}
 
 {% endblock %}

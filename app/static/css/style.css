@@ -1,182 +1,169 @@
 /* ===========================
-   Evenza — Global Styles
+   Evenza — Modern Global Styles
    =========================== */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+.shadow-sm { box-shadow: 0 .125rem .25rem rgba(0,0,0,0.045)!important; }
+.card { transition: transform 0.2s ease, box-shadow 0.2s ease; border-radius: 12px; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 .5rem 1rem rgba(0,0,0,0.08)!important; }
+.badge { font-weight: 600; letter-spacing: 0.2px; }
+.bg-primary-subtle { background-color: #e7f0ff !important; }
+.bg-success-subtle { background-color: #e6f9ed !important; }
+.bg-warning-subtle { background-color: #fff9e6 !important; }
+.bg-danger-subtle { background-color: #ffeef0 !important; }
+.bg-info-subtle { background-color: #e6f7ff !important; }
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #1a56db 0%, #7c3aed 100%);
+    --glass-white: rgba(255, 255, 255, 0.9);
+    --soft-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
 
 body {
-    background-color: #f8f9fa;
-    font-family: 'Segoe UI', sans-serif;
+    background-color: #f3f4f6; /* Slightly deeper gray for better card contrast */
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #1f2937;
 }
 
 /* ===========================
    Navbar
    =========================== */
 .navbar {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    background: var(--primary-gradient) !important;
+    backdrop-filter: blur(10px);
+    padding: 0.8rem 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
 .navbar-brand {
-    font-size: 1.5rem;
-    letter-spacing: 1px;
-    font-weight: 700;
+    font-size: 1.6rem;
+    letter-spacing: -0.5px;
+    font-weight: 800;
+    color: #fff !important;
 }
 
 .nav-link {
-    font-size: 0.92rem;
-    transition: opacity 0.15s;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85) !important;
+    transition: all 0.2s ease;
 }
 
 .nav-link:hover {
-    opacity: 0.8;
+    color: #fff !important;
+    transform: translateY(-1px);
 }
 
 .navbar-nav .nav-link.active {
-    background-color: rgba(255,255,255,0.15);
-    border-radius: 6px;
-    padding-left: 10px;
-    padding-right: 10px;
+    background-color: rgba(255,255,255,0.2);
+    backdrop-filter: blur(5px);
+    border-radius: 8px;
+    color: #fff !important;
 }
 
 /* ===========================
-   Cards
+   Cards (Glassmorphism Light)
    =========================== */
 .card {
-    border: none;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    border-radius: 14px;
-    transition: transform 0.15s, box-shadow 0.15s;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: var(--soft-shadow);
+    border-radius: 20px;
+    background: var(--glass-white);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 /* ===========================
    Buttons
    =========================== */
 .btn {
-    border-radius: 8px;
-    font-size: 0.9rem;
-    padding: 6px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    letter-spacing: -0.2px;
 }
 
 .btn-primary {
-    background-color: #1a56db;
-    border-color: #1a56db;
+    background: var(--primary-gradient);
+    border: none;
+    box-shadow: 0 4px 12px rgba(26, 86, 219, 0.2);
 }
 
 .btn-primary:hover {
-    background-color: #1447c0;
-    border-color: #1447c0;
+    transform: scale(1.03);
+    box-shadow: 0 6px 18px rgba(26, 86, 219, 0.3);
+    opacity: 0.95;
 }
 
 /* ===========================
-   Badges
+   Stat Cards (The Dashboard "Pop")
    =========================== */
+.stat-card {
+    border-radius: 20px;
+    border: none;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
 
-.badge {
-    font-weight: 500;
-    font-size: 0.78rem;
-    padding: 5px 10px;
-    border-radius: 6px;
+.stat-card h2 {
+    font-size: 2.5rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
 }
 
 /* ===========================
    Tables
    =========================== */
-.table {
-    border-radius: 12px;
-    overflow: hidden;
+.table-responsive {
+    border-radius: 20px;
+    background: white;
+    padding: 1rem;
+    box-shadow: var(--soft-shadow);
 }
 
 .table thead th {
-    font-weight: 600;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #6b7280;
+    border-bottom: 2px solid #f3f4f6;
+    color: #9ca3af;
+    font-size: 0.75rem;
 }
 
 /* ===========================
-   Alerts
+   Flash Messages (Floating Style)
    =========================== */
-.alert {
-    border-radius: 10px;
-    border: none;
-    font-size: 0.92rem;
+.flash-msg {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1060;
+    min-width: 300px;
+    border-left: 5px solid;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
 }
 
 /* ===========================
    Forms
    =========================== */
-.form-control, .form-select {
-    border-radius: 8px;
-    font-size: 0.92rem;
-    border: 1.5px solid #e5e7eb;
-    padding: 8px 12px;
+.form-control:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
 }
 
-.form-control:focus, .form-select:focus {
-    border-color: #1a56db;
-    box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
-}
-
-.form-label {
-    font-weight: 500;
-    font-size: 0.9rem;
-    color: #374151;
-}
-
-/* ===========================
-   Stat Cards
-   =========================== */
-.stat-card {
-    border-radius: 14px;
-    padding: 1.25rem;
-    text-align: center;
-    background: white;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-}
-
-.stat-card h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-}
-
-.stat-card p {
-    font-size: 0.85rem;
-    color: #6b7280;
-    margin: 0;
-}
-
-/* ===========================
-   Page headings
-   =========================== */
-h4 {
-    font-weight: 600;
-    color: #111827;
-}
-
-h5 {
-    font-weight: 600;
-    color: #1f2937;
-}
-
-/* Fix right side navbar on mobile */
-@media (max-width: 991px) {
-    .navbar-nav.ms-auto {
-        margin-top: 8px;
-        padding-top: 8px;
-        border-top: 1px solid rgba(255,255,255,0.2);
-        flex-direction: row !important;
-        align-items: center;
-    }
-}
-
-/* ===========================
-   Footer spacing
-   =========================== */
-.container {
-    padding-bottom: 2rem;
+/* Custom QR Image Styling */
+.qr-container {
+    background: #f9fafb;
+    padding: 15px;
+    border-radius: 16px;
+    display: inline-block;
 }
