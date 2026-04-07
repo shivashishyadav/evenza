@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Verify Account — Evenza{% endblock %}
+{% block content %}
+
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4 p-md-5 text-center">
+                    <div class="bg-primary-subtle rounded-circle d-inline-flex p-3 mb-4">
+                        <i class="bi bi-shield-lock-fill text-primary fs-1"></i>
+                    </div>
+                    
+                    <h3 class="fw-bold text-dark">Email Verification</h3>
+                    <p class="text-muted small mb-4">
+                        OTP sent to <span class="text-dark fw-bold">{{ email }}</span>
+                    </p>
+
+                    <form method="POST" id="otp-form">
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Enter OTP Code</label>
+                            <input type="text" name="otp" id="otp-input"
+                                   class="form-control form-control-lg text-center fw-bold rounded-3 border-2" 
+                                   maxlength="6" required autofocus autocomplete="off"
+                                   style="letter-spacing: 0.8rem; font-size: 1.5rem;">
+                        </div>
+                        
+                        <button type="submit" id="verify-btn" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">
+                            Verify & Activate
+                        </button>
+                    </form>
+
+                    <div class="mt-4 pt-2">
+                        <div id="timer-container" class="small fw-bold text-muted mb-2">
+                            Code expires in: <span id="timer" class="text-danger">--:--</span>
+                        </div>
+                        
+                        <a href="{{ url_for('auth.resend_otp', email=email) }}" 
+                           id="resend-btn"
+                           class="btn btn-link btn-sm text-primary fw-bold text-decoration-none d-none">
+                           Resend Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // This clears the input box every time the page is loaded/visited
+    window.onpageshow = function(event) {
+        document.getElementById('otp-input').value = '';
+    };
+    
+    // FIX BUG 1: Get actual remaining seconds from Python
+    let timeLimit = {{ remaining_seconds }}; 
+    
+    const timerDisplay = document.getElementById('timer');
+    const resendBtn = document.getElementById('resend-btn');
+    const timerContainer = document.getElementById('timer-container');
+    const verifyBtn = document.getElementById('verify-btn');
+    const otpInput = document.getElementById('otp-input');
+
+    function updateTimerUI() {
+        if (timeLimit <= 0) {
+            timerContainer.innerHTML = '<span class="text-danger fw-bold">OTP Expired!</span>';
+            resendBtn.classList.remove('d-none');
+            verifyBtn.disabled = true; // Disable button when expired
+            otpInput.disabled = true;
+            return;
+        }
+
+        let minutes = Math.floor(timeLimit / 60);
+        let seconds = timeLimit % 60;
+        timerDisplay.innerHTML = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        timeLimit--;
+        setTimeout(updateTimerUI, 1000);
+    }
+
+    updateTimerUI();
+</script>
+
+{% endblock %}
