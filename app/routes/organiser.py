@@ -95,6 +95,7 @@ def create_event():
         poster_filename = None #default value, no file uploaded
         poster_file = request.files.get('poster') 
         if poster_file and poster_file.filename != '': #if file exists and filename is not empty
+            # 1. Check Extension (Keep validation!)
             if not allowed_file(poster_file.filename):
                 flash('Only .jpg or .jpeg or .png images allowed', 'danger')
                 return redirect(url_for('organiser.create_event'))
@@ -107,9 +108,16 @@ def create_event():
                 flash('Image must be under 2MB.', 'danger')
                 return redirect(url_for('organiser.create_event'))
             
-            poster_filename = secure_filename(f"event_{current_user.id}_{poster_file.filename}")
-            upload_path = os.path.join('app', 'static', 'uploads', poster_filename)
+            # 3. NEW: Robust Pathing Logic
+            from flask import current_app
+            ext = os.path.splitext(poster_file.filename)[1]
+            # Use timestamp to prevent "File already exists" errors if user uploads same image twice
+            unique_name = f"event_{current_user.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}{ext}"
+            poster_filename = secure_filename(unique_name)
 
+            # Pointing correctly to app/static/uploads
+            upload_path = os.path.join(current_app.root_path, 'static', 'uploads', poster_filename)
+            
             os.makedirs(os.path.dirname(upload_path), exist_ok=True) # create folder if not exists
 
             poster_file.save(upload_path) 

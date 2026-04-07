@@ -182,9 +182,16 @@ def login():
             flash('Invalid email or password', 'danger')
             return redirect(url_for('auth.login'))
         
-        if not user.is_verified:
+        # Admin Auto-Verification
+        if user.role == 'admin' and not user.is_verified:
+            user.is_verified = True
+            db.session.commit()
+        
+        # Verification Check for Non-Admins
+        if user.role != 'admin' and not user.is_verified:
             flash('Your email is not verified yet. Please enter the OTP.', 'warning')
             return redirect(url_for('auth.verify_otp', email=user.email))
+        
 
         # 4. Check if account is active (Admin toggle)
         # check if account is active(because it might be possible admin has been toggled(activated/deactivated) this user)
