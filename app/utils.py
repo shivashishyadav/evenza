@@ -40,7 +40,11 @@ def generate_qr(registration_id, user_id, event_id):
 def send_async_email(app, msg):
     with app.app_context():
         try:
+            print(f'Attempting to send email to: {msg.recipients}')
+            print(f'Mail server: {app.config.get("MAIL_SERVER")}')
+            print(f'Mail username: {app.config.get("MAIL_USERNAME")}')
             mail.send(msg)
+            print('Email sent successfully!')
         except Exception as e:
             print(f'Email error: {e}')
 
