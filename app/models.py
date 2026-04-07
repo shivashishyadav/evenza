@@ -17,6 +17,9 @@ class User(db.Model, UserMixin):
     role = db.Column(db.String(20), nullable=False, default='student') # student, organiser, admin
     created_at = db.Column(db.DateTime(timezone=True), default=lambda:datetime.now(timezone.utc))
     is_active = db.Column(db.Boolean, default=True) # added later here for admin can activate or deactivate users
+    is_verified = db.Column(db.Boolean, default=False)
+    otp_code = db.Column(db.String(6), nullable=True)
+    otp_created_at = db.Column(db.DateTime(timezone=True))
 
     def __repr__(self):
         return f'<User {self.email} {self.role}>'

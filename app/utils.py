@@ -617,3 +617,32 @@ def generate_certificate(student_name, event_name, event_date, reg_id):
         pdf_bytes = f.read()
 
     return filename, pdf_bytes
+
+
+def send_otp_email(user_email, user_name, otp):
+    """Sends a 6-digit OTP for account verification using Brevo API"""
+    html = f"""
+        <html><body style="font-family: Arial, sans-serif; color: #374151;">
+            <div style="max-width: 600px; margin: auto; border: 1px solid #e5e7eb; padding: 20px; border-radius: 12px;">
+                <h2 style="color: #1a56db; text-align: center;">Verify Your Evenza Account</h2>
+                <p>Hi {user_name},</p>
+                <p>Thank you for joining Evenza! To complete your registration, please use the following One-Time Password (OTP):</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #1a56db; background: #f0f4ff; padding: 10px 20px; border-radius: 8px; border: 1px dashed #1a56db;">
+                        {otp}
+                    </span>
+                </div>
+                <p style="font-size: 14px; color: #6b7280;">This code will expire shortly. If you did not request this, please ignore this email.</p>
+                <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+                <p style="font-size: 12px; color: #9ca3af; text-align: center;">Team Evenza — Campus Event Management</p>
+            </div>
+        </body></html>
+    """
+    # Using a thread to keep the registration snappy
+    thread = threading.Thread(target=send_brevo_api_email, args=(
+        user_email, 
+        user_name, 
+        "Verify your Evenza Account", 
+        html
+    ))
+    thread.start()
