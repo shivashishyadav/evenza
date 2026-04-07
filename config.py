@@ -31,8 +31,10 @@ class Config:
     # MAIL_PORT = 587 # this port is uses to send the mails securely, which door to use to talk to Gmail servers  
 
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp-relay.brevo.com')
-    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
-    MAIL_USE_TLS = True  # transport layer security(encrypt emails while sending and prevent credentials reading in between)
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 465))
+    # MAIL_USE_TLS = True  # transport layer security(encrypt emails while sending and prevent credentials reading in between)
+    MAIL_USE_TLS = False  # just for testing avoid security 
+    MAIL_USE_SSL = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME') 
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') #This should be a Gmail App Password, not our real password
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or os.environ.get('MAIL_USERNAME')
