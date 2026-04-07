@@ -126,10 +126,8 @@ def register(event_id):
 
     if count < event.capacity:
         status = 'confirmed'
-        flash('Registered successfully!', 'success')
     else:
         status = 'waitlist'
-        flash('Event full, added to waitlist', 'warning')
     
     reg = Registration( #reg.id=None
         user_id=current_user.id,

@@ -2,7 +2,7 @@
 import qrcode #generate QR codes from text/data
 import os
 import threading
-
+from flask import current_app
 from flask_mail import Message
 from app import mail
 
@@ -26,7 +26,7 @@ def generate_qr(registration_id, user_id, event_id):
 
     # save to static/qrcodes/ 
     filename = f"qr_{registration_id}_{user_id}_{event_id}.png" # create filename(Standard readable QR)
-    folder = os.path.join('app','static','qrcodes') #folder path
+    folder = os.path.join(current_app.root_path,'static','qrcodes') #folder path
     os.makedirs(folder, exist_ok=True) #create folder if missing, doesn’t crash if already exists
 
     # full file path
@@ -85,7 +85,7 @@ def send_confirmation_email(student, event, qr_filename):
 
         
         # Attach QR
-        filepath = os.path.join('app', 'static', 'qrcodes', qr_filename)
+        filepath = os.path.join(current_app.root_path, 'static', 'qrcodes', qr_filename)
 
         with open(filepath, 'rb') as f:
             msg.attach(
@@ -145,7 +145,7 @@ def generate_certificate(student_name, event_name, event_date, reg_id):
     """Create PDF -> Design layout -> Add text -> Save file -> Return filename"""
 
     filename = f"cert_{reg_id}.pdf"  # create filename (cert_12.pdf) (why unique? because one registration one certificate name)
-    folder = os.path.join('app', 'static', 'certificates') # define folder (app/static/certificates/)
+    folder = os.path.join(current_app.root_path, 'static', 'certificates') # define folder (app/static/certificates/)
     os.makedirs(folder, exist_ok=True)  # if folder exists okay, if not then create it
     filepath = os.path.join(folder, filename) # final path (app/static/certificates/cert_12.pdf)
 
