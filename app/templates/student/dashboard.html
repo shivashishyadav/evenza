@@ -50,7 +50,7 @@
                 <!-- if qr exists -->
                 {% if r.qr_code %}
                     <div class="mt-2">
-                        <img src="{{ url_for('static', filename='qrcodes/' + r.qr_code) }}"
+                        <img src="{{ url_for('student.get_qr', reg_id=r.id) }}"
                             alt="QR Code"
                             width="150"
                             class="img-fluid">

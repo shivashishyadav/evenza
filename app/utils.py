@@ -1,10 +1,31 @@
 # QR gen, PDF cert, email helpers
 import qrcode #generate QR codes from text/data
 import os
+import io
 import threading
 from flask import current_app
 from flask_mail import Message
 from app import mail
+
+
+def generate_qr_image(registration_id, user_id, event_id):
+    """Generate QR code and return as bytes in memory — no disk needed"""
+    data = f"EVENZA-REG-{registration_id}-{user_id}-{event_id}"
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4
+    )
+    qr.add_data(data=data)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # save to bytes buffer instead of disk
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
+    return buffer.getvalue()  # returns bytes
 
 # One user can register for multiple events,So combination ensures uniqueness
 def generate_qr(registration_id, user_id, event_id):
@@ -48,7 +69,8 @@ def send_async_email(app, msg):
         except Exception as e:
             print(f'Email error: {e}')
 
-def send_confirmation_email(student, event, qr_filename):
+# def send_confirmation_email(student, event, qr_filename):
+def send_confirmation_email(student, event, registration_id, user_id, event_id):
     from flask import current_app
     app = current_app._get_current_object()
 
@@ -88,18 +110,28 @@ def send_confirmation_email(student, event, qr_filename):
             """
 
         
-        # Attach QR
-        filepath = os.path.join(current_app.root_path, 'static', 'qrcodes', qr_filename)
+        # # Attach QR
+        # filepath = os.path.join(current_app.root_path, 'static', 'qrcodes', qr_filename)
 
-        with open(filepath, 'rb') as f:
-            msg.attach(
-                qr_filename,
-                "image/png",
-                f.read(),
-                headers={'Content-ID': '<qr_code>'}
-            )
+        # with open(filepath, 'rb') as f:
+        #     msg.attach(
+        #         qr_filename,
+        #         "image/png",
+        #         f.read(),
+        #         headers={'Content-ID': '<qr_code>'}
+        #     )
 
-         # send in background thread
+        # for deployement
+        # generate QR in memory — no file needed
+        qr_bytes = generate_qr_image(registration_id, user_id, event_id)
+        msg.attach(
+            f"qr_{registration_id}.png",
+            "image/png",
+            qr_bytes,
+            headers={'Content-ID': '<qr_code>'}
+        )
+
+        # send in background thread
         thread = threading.Thread(target=send_async_email, args=(app, msg))
         thread.start()
 
@@ -147,6 +179,7 @@ from reportlab.lib import colors # used for styling
 
 def generate_certificate(student_name, event_name, event_date, reg_id):
     """Create PDF -> Design layout -> Add text -> Save file -> Return filename"""
+    import io as _io
 
     filename = f"cert_{reg_id}.pdf"  # create filename (cert_12.pdf) (why unique? because one registration one certificate name)
     folder = os.path.join(current_app.root_path, 'static', 'certificates') # define folder (app/static/certificates/)
@@ -223,11 +256,17 @@ def generate_certificate(student_name, event_name, event_date, reg_id):
     c.drawCentredString(width / 2, height - 450, 'Evenza — College Event Management System')
 
     c.save() #Writes everything to disk
-    return filename #store in DB, send via email, show in UI
+    # return filename #store in DB, send via email, show in UI
+    
+    # also read bytes for email attachment
+    with open(filepath, 'rb') as f:
+        pdf_bytes = f.read()
+
+    return filename, pdf_bytes  # ← return both
 
 
 # -----------------------------Send Certificate on Mail------------------------------------
-def send_certificate_email(student, event, cert_filename):
+def send_certificate_email(student, event, cert_filename, pdf_bytes=None):
     from flask import current_app
     app = current_app._get_current_object()
 
@@ -252,15 +291,31 @@ def send_certificate_email(student, event, cert_filename):
             <p>Thank you for being part of the event!<br>Team Evenza</p>
         """
 
-        # attach PDF
-        from flask import current_app
-        filepath = os.path.join(current_app.root_path, 'static', 'certificates', cert_filename)
-        with open(filepath, 'rb') as f:
+        # # attach PDF
+        # from flask import current_app
+        # filepath = os.path.join(current_app.root_path, 'static', 'certificates', cert_filename)
+        # with open(filepath, 'rb') as f:
+        #     msg.attach(
+        #         f"{event.title}_certificate.pdf",
+        #         "application/pdf",
+        #         f.read()
+        #     )
+
+        # use bytes if provided, otherwise read from disk
+        if pdf_bytes:
             msg.attach(
                 f"{event.title}_certificate.pdf",
                 "application/pdf",
-                f.read()
+                pdf_bytes
             )
+        else:
+            filepath = os.path.join(current_app.root_path, 'static', 'certificates', cert_filename)
+            with open(filepath, 'rb') as f:
+                msg.attach(
+                    f"{event.title}_certificate.pdf",
+                    "application/pdf",
+                    f.read()
+                )
 
         thread = threading.Thread(target=send_async_email, args=(app, msg))
         thread.start()

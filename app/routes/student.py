@@ -153,13 +153,33 @@ def register(event_id):
     db.session.commit()
 
     if status == 'confirmed':
-        send_confirmation_email(current_user, event, qr_filename) # send mail
+        send_confirmation_email(current_user, event, reg.id, current_user.id, event_id) # send mail
         flash('Registered successfully! Your QR code is ready.', 'success')
     else:
         flash('Event full — added to waitlist.', 'warning')
 
     return redirect(url_for('student.my_events'))
 
+# -----------------------------------------------------------------------------
+from flask import send_file
+import io
+
+@student.route('/student/qr/<int:reg_id>')
+@login_required
+@role_required('student')
+def get_qr(reg_id):
+    reg = Registration.query.get_or_404(reg_id)
+
+    # security check
+    if reg.user_id != current_user.id:
+        return 'Unauthorized', 403
+
+    from app.utils import generate_qr_image
+    qr_bytes = generate_qr_image(reg.id, reg.user_id, reg.event_id)
+    return send_file(
+        io.BytesIO(qr_bytes),
+        mimetype='image/png'
+    )
 
 # ------------------------------CERTIFICATES------------------------------
 @student.route('/student/my-certificates')
@@ -191,7 +211,7 @@ def my_certificates():
 
         if not cert:
             # generate certificate
-            filename = generate_certificate(
+            filename, pdf_bytes  = generate_certificate(
                 student_name=current_user.name,
                 event_name=reg.event.title,
                 event_date=reg.event.date.strftime('%d %b %Y'),
@@ -204,7 +224,7 @@ def my_certificates():
             db.session.add(cert)
             db.session.commit()
             # send certificate email — only on first generation
-            send_certificate_email(current_user, reg.event, filename)
+            send_certificate_email(current_user, reg.event, filename, pdf_bytes)
 
         certs.append((reg.event, cert)) #event name + certificate name
 
@@ -230,5 +250,17 @@ def download_certificate(cert_id):
         flash('You can only download your own certificates.', 'danger')
         return redirect(url_for('student.my_certificates'))
 
+    # try disk first
     folder = os.path.join(current_app.root_path, 'static', 'certificates') # build path like "/home/project/app/static/certificates"
+    filepath = os.path.join(folder, cert.file_path)
+
+    if not os.path.exists(filepath):
+        # regenerate if file missing (Render ephemeral filesystem)
+        filename, _ = generate_certificate(
+            student_name=cert.registration.user.name,
+            event_name=cert.registration.event.title,
+            event_date=cert.registration.event.date.strftime('%d %b %Y'),
+            reg_id=cert.registration_id
+        )
+
     return send_from_directory(folder, cert.file_path, as_attachment=True, download_name=f"{cert.registration.event.title}_certificate.pdf") #as_attachment=True: as_attachment=True
