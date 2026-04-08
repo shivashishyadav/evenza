@@ -33,13 +33,21 @@ def dashboard():
         if r.status == 'confirmed' and make_aware(r.event.date) > now
     ]
 
+    # Logic: Count registrations where the organiser has issued a certificate
+    # Or where attendance was marked 'present' and event is 'completed'
+    cert_count = Certificate.query.join(Registration).filter(
+        Registration.user_id == current_user.id
+    ).count()
+
     # Send data to template & return template
     return render_template('student/dashboard.html',
         regs=regs,
         total=total,
         confirmed=confirmed,
         waitlist=waitlist,
-        upcoming=upcoming
+        upcoming=upcoming,
+        now=now,
+        cert_count=cert_count,
     )
 
 
@@ -55,18 +63,17 @@ def my_events():
     # now = datetime.now(timezone.utc).replace(tzinfo=None)
     # upcoming = [r for r in regs if r.event.date > now and r.status == 'confirmed']
 
-    now = datetime.now(timezone.utc)
-    upcoming = [
-        r for r in regs
-        if r.status == 'confirmed' and make_aware(r.event.date) > now
-    ]
+    # now = datetime.now(timezone.utc)
+    # upcoming = [
+    #     r for r in regs
+    #     if r.status == 'confirmed' and make_aware(r.event.date) > now
+    # ]
 
-    return render_template('student/dashboard.html',
-        regs=regs,
+    return render_template('student/my_events.html',
+        registrations=regs,
         total=total,
         confirmed=confirmed,
         waitlist=waitlist,
-        upcoming=upcoming
     )   
 
 

@@ -1,102 +1,191 @@
 {% extends 'base.html' %}
-{% block title %}Dashboard — Evenza{% endblock %}
+{% block title %}Student Dashboard — Evenza{% endblock %}
+
 {% block content %}
+<style>
+    .stat-card {
+        border: none;
+        border-radius: 16px;
+        transition: transform 0.2s ease;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .event-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    .event-card:hover {
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+    .qr-box {
+        background: #f8fafc;
+        border: 2px dashed #e2e8f0;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .qr-box:hover {
+        background: #f1f5f9;
+    }
+    .activity-item {
+        border-left: 3px solid #e2e8f0;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+    .activity-item::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 0;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: #2563eb;
+        border: 3px solid white;
+    }
+    .x-small { font-size: 0.75rem; }
+</style>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold">Welcome back, <span class="text-primary">{{ current_user.name }}</span>!</h4>
-    <span class="text-muted small">{{ now.strftime('%A, %d %B') if now else '' }}</span>
-</div>
-
-<div class="row g-4 mb-5">
-    <div class="col-md-4">
-        <div class="card stat-card border-start border-primary border-4 p-3">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <p class="text-muted mb-0 small uppercase fw-bold">Registrations</p>
-                    <h2 class="fw-bold mb-0">{{ total }}</h2>
-                </div>
+<div class="container-fluid px-lg-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Hello, {{ current_user.name }}!</h2>
+            <p class="text-muted mb-0">Here's what's happening with your events today.</p>
+        </div>
+        <div class="text-md-end">
+            <div class="bg-white px-3 py-2 rounded-3 shadow-sm border d-inline-block">
+                <i class="bi bi-calendar3 text-primary me-2"></i>
+                <span class="fw-bold">{{ now.strftime('%d %B, %Y') if now else 'Today' }}</span>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card stat-card border-start border-success border-4 p-3">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <p class="text-muted mb-0 small uppercase fw-bold">Confirmed</p>
-                    <h2 class="fw-bold mb-0 text-success">{{ confirmed }}</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card stat-card border-start border-warning border-4 p-3">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <p class="text-muted mb-0 small uppercase fw-bold">Waitlist</p>
-                    <h2 class="fw-bold mb-0 text-warning">{{ waitlist }}</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-lg-8">
-        <h5 class="fw-bold mb-3 d-flex align-items-center">
-            Upcoming Events <span class="badge bg-primary ms-2">{{ upcoming|length }}</span>
-        </h5>
-        
-        {% if upcoming %}
-        <div class="row g-3">
-            {% for r in upcoming %}
-            <div class="col-md-6">
-                <div class="card h-100 overflow-hidden">
-                    <div class="bg-primary py-1"></div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h6 class="fw-bold mb-0">{{ r.event.title }}</h6>
-                            <span class="badge bg-success-subtle text-success border border-success">Confirmed</span>
-                        </div>
-                        <p class="text-muted small mb-1"><i class="bi bi-geo-alt"></i> {{ r.event.venue }}</p>
-                        <p class="text-muted small mb-3"><i class="bi bi-calendar-event"></i> {{ r.event.date.strftime('%d %b, %I:%M %p') }}</p>
-                        
-                        {% if r.qr_code %}
-                        <div class="text-center bg-light p-3 rounded-4">
-                            <img src="{{ url_for('student.get_qr', reg_id=r.id) }}" alt="QR" width="120" class="img-fluid rounded">
-                            <p class="text-muted x-small mt-2 mb-0">Ticket ID: #{{ r.id }}</p>
-                        </div>
-                        {% endif %}
+    <div class="row g-4 mb-5">
+        <div class="col-6 col-md-3">
+            <div class="card stat-card p-3">
+                <div class="text-muted x-small fw-bold text-uppercase mb-2">Total Registrations</div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <h3 class="fw-bold mb-0">{{ total }}</h3>
+                    <div class="bg-primary-subtle p-2 rounded-3 text-primary"><i class="bi bi-journal-text"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card p-3">
+                <div class="text-muted x-small fw-bold text-uppercase mb-2">Confirmed Slots</div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <h3 class="fw-bold mb-0 text-success">{{ confirmed }}</h3>
+                    <div class="bg-success-subtle p-2 rounded-3 text-success"><i class="bi bi-check-circle"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card p-3">
+                <div class="text-muted x-small fw-bold text-uppercase mb-2">Waiting List</div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <h3 class="fw-bold mb-0 text-warning">{{ waitlist }}</h3>
+                    <div class="bg-warning-subtle p-2 rounded-3 text-warning"><i class="bi bi-hourglass-split"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card p-3 h-100">
+                <div class="text-muted x-small fw-bold text-uppercase mb-2">Certificates</div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <h3 class="fw-bold mb-0 text-info">{{ cert_count }}</h3>
+                    <div class="bg-info-subtle p-2 rounded-3 text-info">
+                        <i class="bi bi-award"></i>
                     </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
-        {% else %}
-        <div class="card p-5 text-center bg-light border-dashed">
-            <p class="text-muted">No events on your schedule.</p>
-            <a href="{{ url_for('student.events') }}" class="btn btn-primary btn-sm mx-auto">Find Events</a>
-        </div>
-        {% endif %}
     </div>
 
-    <div class="col-lg-4">
-        <h5 class="fw-bold mb-3">Recent Activity</h5>
-        <div class="card p-0 overflow-hidden">
-            <ul class="list-group list-group-flush">
-                {% for r in regs[:5] %}
-                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
-                    <div>
-                        <div class="fw-bold small">{{ r.event.title }}</div>
-                        <div class="text-muted x-small">{{ r.event.date.strftime('%d %b') }}</div>
+    <div class="row g-5">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">Your Schedule</h4>
+                <a href="{{ url_for('student.events') }}" class="btn btn-link text-primary fw-bold text-decoration-none p-0">Browse More <i class="bi bi-arrow-right"></i></a>
+            </div>
+
+            {% if upcoming %}
+            <div class="row g-4">
+                {% for r in upcoming %}
+                <div class="col-md-12">
+                    <div class="card event-card h-100 p-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="d-flex gap-2 align-items-center mb-2">
+                                    <span class="badge bg-primary-subtle text-primary rounded-pill">Upcoming</span>
+                                    <span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ r.event.date.strftime('%H:%M %p') }}</span>
+                                </div>
+                                <h5 class="fw-bold text-dark">{{ r.event.title }}</h5>
+                                <div class="d-flex gap-3 text-muted small">
+                                    <span><i class="bi bi-geo-alt me-1"></i>{{ r.event.venue }}</span>
+                                    <span><i class="bi bi-calendar-check me-1"></i>{{ r.event.date.strftime('%d %b') }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                {% if r.qr_code %}
+                                <button class="btn btn-outline-dark rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#qrModal{{ r.id }}">
+                                    <i class="bi bi-qr-code me-2"></i> View Ticket
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                    <span class="badge {% if r.status == 'confirmed' %}bg-success{% else %}bg-warning{% endif %} rounded-pill">
-                        {{ r.status }}
-                    </span>
-                </li>
+
+                    <div class="modal fade" id="qrModal{{ r.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-sm">
+                            <div class="modal-content border-0 rounded-4 shadow">
+                                <div class="modal-body text-center p-4">
+                                    <h6 class="fw-bold mb-3">Event Ticket</h6>
+                                    <div class="qr-box p-3 rounded-4 mb-3">
+                                        <img src="{{ url_for('student.get_qr', reg_id=r.id) }}" alt="QR" class="img-fluid rounded">
+                                    </div>
+                                    <p class="mb-0 fw-bold">{{ r.event.title }}</p>
+                                    <p class="text-muted x-small mb-3">Ref ID: #{{ r.id }}</p>
+                                    <button type="button" class="btn btn-light w-100 rounded-pill" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
-            </ul>
+            </div>
+            {% else %}
+            <div class="card p-5 text-center bg-white rounded-4 border border-dashed shadow-sm">
+                <div class="mb-3 text-muted display-6"><i class="bi bi-calendar-x"></i></div>
+                <h5 class="fw-bold">No upcoming events</h5>
+                <p class="text-muted small">You haven't registered for any events yet.</p>
+                <a href="{{ url_for('student.events') }}" class="btn btn-primary rounded-pill px-4">Explore Events</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <h4 class="fw-bold mb-4">Recent Activity</h4>
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="timeline">
+                    {% for r in regs[:5] %}
+                    <div class="activity-item mb-4 pb-2">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="fw-bold small">{{ r.event.title }}</div>
+                                <div class="text-muted x-small">Status Updated to <b>{{ r.status }}</b></div>
+                            </div>
+                            <span class="text-muted x-small">{{ r.event.date.strftime('%d %b') }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <a href="{{ url_for('student.my_events') }}" class="btn btn-light w-100 rounded-pill text-muted small fw-bold mt-2">View Full History</a>
+            </div>
         </div>
     </div>
 </div>
-
 {% endblock %}

@@ -1,44 +1,94 @@
 {% extends 'base.html' %}
 {% block title %}My Certificates — Evenza{% endblock %}
-{% block content %}
 
-<h4 class="mb-4">My Certificates</h4>
+{% block content %}
+<style>
+    /* A clean, subtle pattern so it doesn't look blank */
+    .cert-grid {
+        background-color: #f8f9fa;
+        background-image: radial-gradient(#dee2e6 0.5px, transparent 0.5px);
+        background-size: 20px 20px;
+        border-radius: 15px;
+        padding: 30px;
+    }
+
+    .cert-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        background: #fff;
+        transition: transform 0.2s;
+    }
+
+    .cert-card:hover {
+        transform: translateY(-5px);
+        border-color: #0d6efd; /* Matches standard primary color */
+    }
+
+    /* PDF Icon Layout */
+    .pdf-preview {
+        background: #fdfdfd;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid #f0f0f0;
+        position: relative;
+    }
+
+    /* Red PDF corner tag */
+    .pdf-tag {
+        position: absolute;
+        top: 0;
+        left: 20px;
+        background: #dc3545;
+        color: white;
+        padding: 2px 8px;
+        font-size: 10px;
+        font-weight: bold;
+        border-radius: 0 0 4px 4px;
+    }
+</style>
+
+<div class="mb-4">
+    <h4 class="fw-bold">My Certificates</h4>
+    <p class="text-muted small">Download and view your earned achievements from past events.</p>
+</div>
 
 {% if certs %}
-<div class="row">
-    {% for event, cert in certs %}
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-
-                <!-- certificate icon -->
-                <div style="font-size: 48px; margin-bottom: 12px;">🏅</div>
-
-                <h6 class="fw-bold">{{ event.title }}</h6>
-                <p class="text-muted small mb-1">{{ event.venue }}</p>
-                <p class="text-muted small mb-3">
-                    {{ event.date.strftime('%d %b %Y') }}
-                </p>
-
-                <span class="badge bg-success mb-3">Attended</span>
-
-                <div class="d-grid">
-                    <a href="{{ url_for('student.download_certificate', cert_id=cert.id) }}"
-                       class="btn btn-primary btn-sm">
-                        Download Certificate
-                    </a>
+<div class="cert-grid">
+    <div class="row g-4">
+        {% for event, cert in certs %}
+        <div class="col-md-4 col-sm-6">
+            <div class="card cert-card h-100 shadow-sm">
+                <div class="pdf-preview">
+                    <div class="pdf-tag">PDF</div>
+                    <i class="bi bi-file-earmark-pdf text-danger display-3"></i>
                 </div>
 
+                <div class="card-body">
+                    <h6 class="fw-bold text-truncate mb-1" title="{{ event.title }}">{{ event.title }}</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted x-small">{{ event.date.strftime('%d %b %Y') }}</span>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle x-small">Verified</span>
+                    </div>
+
+                    <a href="{{ url_for('student.download_certificate', cert_id=cert.id) }}" 
+                       class="btn btn-primary w-100 btn-sm rounded-pill py-2">
+                        <i class="bi bi-download me-2"></i>Download
+                    </a>
+                </div>
             </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
 
 {% else %}
-<div class="alert alert-info">
-    No certificates yet. Attend events to earn certificates!
-    <a href="{{ url_for('student.events') }}" class="alert-link">Browse events →</a>
+<div class="text-center py-5 border rounded-3 bg-white">
+    <i class="bi bi-award text-muted display-1 mb-3"></i>
+    <h5>No certificates yet</h5>
+    <p class="text-muted small">Your certificates will appear here once an event is completed.</p>
+    <a href="{{ url_for('student.events') }}" class="btn btn-outline-primary btn-sm rounded-pill px-4">Find Events</a>
 </div>
 {% endif %}
 

@@ -1,116 +1,83 @@
-<!-- navbar, layout, flash messages -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %} Evenza {% endblock %}</title>
-
     <link rel="icon" sizes="64x64" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-4">
-        <!-- Brand -->
-        <a class="navbar-brand fw-bold text-primary" href="{{ url_for('auth.home') }}">
-            Evenza
-        </a>
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid px-lg-5">
+            <a class="navbar-brand fw-bold" href="{{ url_for('auth.home') }}">Evenza</a>
 
-        <!-- Mobile toggle button -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <div class="collapse navbar-collapse" id="navbarMenu">
-
-            <!-- Left side links — only show when logged in -->
             {% if current_user.is_authenticated %}
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <div class="d-flex align-items-center d-lg-none ms-auto me-2">
+                <span class="badge bg-primary-subtle text-primary rounded-pill small">{{ current_user.name[0] }}</span>
+            </div>
 
-                {% if current_user.role == 'student' %}
-                    <li class="nav-item">
-                        <!-- request.endpoint gives the current route name.When we're on the dashboard page,
-                          request.endpoint returns 'student.dashboard'
-                           — so Bootstrap's active class is added making that link appear highlighted. -->
-                        <a class="nav-link {% if request.endpoint == 'student.dashboard' %}active fw-bold{% endif %}"
-                        href="{{ url_for('student.dashboard') }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'student.events' %}active fw-bold{% endif %}"
-                        href="{{ url_for('student.events') }}">Browse Events</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'student.my_events' %}active fw-bold{% endif %}"
-                        href="{{ url_for('student.my_events') }}">My Events</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'student.my_certificates' %}active fw-bold{% endif %}"
-                        href="{{ url_for('student.my_certificates') }}">My Certificates</a>
-                    </li>
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarMenu">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    
+                    {# --- STUDENT LINKS --- #}
+                    {% if current_user.role == 'student' %}
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.dashboard' %}active{% endif %}" href="{{ url_for('student.dashboard') }}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.events' %}active{% endif %}" href="{{ url_for('student.events') }}">Events</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.my_events' %}active{% endif %}" href="{{ url_for('student.my_events') }}">My Registrations</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.my_certificates' %}active{% endif %}" href="{{ url_for('student.my_certificates') }}">Certificates</a></li>
+                    
+                    {# --- ORGANISER LINKS --- #}
+                    {% elif current_user.role == 'organiser' %}
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'organiser.dashboard' %}active{% endif %}" href="{{ url_for('organiser.dashboard') }}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'organiser.create_event' %}active{% endif %}" href="{{ url_for('organiser.create_event') }}">Create Event</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'organiser.my_events' %}active{% endif %}" href="{{ url_for('organiser.my_events') }}">My Events</a></li>
+                    
+                    {# --- ADMIN LINKS (This was missing) --- #}
+                    {% elif current_user.role == 'admin' %}
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}">Admin Panel</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'admin.manage_events' %}active{% endif %}" href="{{ url_for('admin.manage_events') }}">Events Control</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'admin.manage_users' %}active{% endif %}" href="{{ url_for('admin.manage_users') }}">Users</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'admin.reports' %}active{% endif %}" href="{{ url_for('admin.reports') }}">Analytics</a></li>
+                    {% endif %}
 
-                {% elif current_user.role == 'organiser' %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'organiser.dashboard' %}active fw-bold{% endif %}"
-                        href="{{ url_for('organiser.dashboard') }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'organiser.create_event' %}active fw-bold{% endif %}"
-                        href="{{ url_for('organiser.create_event') }}">Create Event</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'organiser.my_events' %}active fw-bold{% endif %}"
-                        href="{{ url_for('organiser.my_events') }}">My Events</a>
-                    </li>
+                </ul>
 
-                {% elif current_user.role == 'admin' %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'admin.dashboard' %}active fw-bold{% endif %}"
-                        href="{{ url_for('admin.dashboard') }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'admin.manage_events' %}active fw-bold{% endif %}"
-                        href="{{ url_for('admin.manage_events') }}">Manage Events</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'admin.manage_users' %}active fw-bold{% endif %}"
-                        href="{{ url_for('admin.manage_users') }}">Manage Users</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'admin.reports' %}active fw-bold{% endif %}"
-                        href="{{ url_for('admin.reports') }}">Reports</a>
-                    </li>
-                {% endif %}
-
-            </ul>
-
-            <!-- Right side — user info and logout -->
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item d-flex align-items-center gap-2 py-2">
-                    <span class="text-white small">
-                        {{ current_user.name }}
-                    </span>
-                    <span class="badge bg-light text-primary">{{ current_user.role }}</span>
-                    <form method="POST" action="{{ url_for('auth.logout') }}" class="d-inline">
-                        <button type="submit" class="btn btn-outline-light btn-sm">
-                            Logout
-                        </button>
+                <div class="d-none d-lg-flex align-items-center gap-3">
+                    <div class="text-end">
+                        <div class="fw-bold small lh-1 text-dark">{{ current_user.name }}</div>
+                        <span class="badge bg-primary-subtle text-primary mt-1" style="font-size: 0.65rem;">{{ current_user.role.upper() }}</span>
+                    </div>
+                    <form method="POST" action="{{ url_for('auth.logout') }}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm px-3 rounded-pill">Logout</button>
                     </form>
-                </li>
-            </ul>
-            {% endif %}
+                </div>
 
+                <div class="d-lg-none mt-3 pt-3 border-top">
+                    <div class="small text-muted mb-2">Logged in as: <strong>{{ current_user.name }}</strong></div>
+                    <form method="POST" action="{{ url_for('auth.logout') }}">
+                        <button type="submit" class="btn btn-danger btn-sm w-100">Logout</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container py-4">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show flash-msg" role="alert">{{ message }}
-                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
+                <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show flash-msg shadow-sm border-0" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
@@ -120,13 +87,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        setTimeout(function() {
-            document.querySelectorAll('.flash-msg').forEach(function(flash) {
-                flash.classList.remove('show');
-                setTimeout(() => flash.remove(), 500);
+        setTimeout(() => {
+            document.querySelectorAll('.flash-msg').forEach(f => {
+                let alert = new bootstrap.Alert(f);
+                alert.close();
             });
-        }, 2000);
+        }, 3000);
     </script>
-
 </body>
 </html>

@@ -2,65 +2,150 @@
 {% block title %}Create Event — Evenza{% endblock %}
 {% block content %}
 
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card p-4 border-0 shadow-lg">
-            <div class="text-center mb-4">
-                <div class="bg-primary-subtle d-inline-block p-3 rounded-circle mb-3">
-                    <i class="bi bi-calendar-plus text-primary fs-2"></i>
-                </div>
-                <h3 class="fw-bold">Create New Event</h3>
-                <p class="text-muted small">Fill in the details to submit for admin review.</p>
-            </div>
+<style>
+    .form-card {
+        border: none;
+        border-radius: 1.25rem;
+        background: #ffffff;
+        max-width: 600px;
+        margin: auto;
+    }
 
-            <form method="POST" enctype="multipart/form-data" class="needs-validation">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Event Title</label>
-                    <input type="text" name="title" class="form-control form-control-lg bg-light border-0" 
-                           placeholder="e.g. Annual Tech Symposium" required>
-                </div>
+    .form-control, .form-select {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+        border: 1px solid #e2e8f0;
+        background-color: #f8fafc;
+    }
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Description</label>
-                    <textarea name="description" class="form-control bg-light border-0" rows="3" 
-                              placeholder="Briefly describe the agenda..."></textarea>
-                </div>
+    .form-control:focus {
+        background-color: #fff;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.08);
+    }
 
-                <div class="row">
-                    <div class="col-md-7 mb-3">
-                        <label class="form-label fw-bold">Venue</label>
-                        <div class="input-group">
-                            <input type="text" name="venue" class="form-control bg-light border-0" 
-                                   placeholder="Main Auditorium" required>
+    .input-group-text {
+        background-color: #f8fafc;
+        border-color: #e2e8f0;
+        color: #64748b;
+    }
+
+    .icon-circle {
+        width: 50px;
+        height: 50px;
+        background: #eff6ff;
+        color: #2563eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        margin: 0 auto 1rem;
+    }
+
+    .border-dashed {
+        border: 2px dashed #e2e8f0;
+        transition: all 0.2s ease;
+    }
+
+    .section-label {
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        color: #64748b;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 0.4rem;
+        display: block;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card form-card shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    
+                    <div class="text-center mb-4">
+                        <div class="icon-circle">
+                            <i class="bi bi-calendar-plus-fill fs-4"></i>
                         </div>
+                        <h4 class="fw-bold text-dark mb-1">Create New Event</h4>
+                        <p class="text-muted small">Submit your event for administrator review</p>
                     </div>
-                    <div class="col-md-5 mb-3">
-                        <label class="form-label fw-bold">Capacity</label>
-                        <input type="number" name="capacity" class="form-control bg-light border-0" 
-                               placeholder="100" min="1" required>
-                    </div>
-                </div>
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Date & Time</label>
-                    <input type="datetime-local" name="date" class="form-control bg-light border-0" required>
-                </div>
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="section-label">Event Title</label>
+                            <input type="text" name="title" class="form-control" 
+                                   placeholder="e.g. Annual Tech Symposium 2026" required autofocus>
+                        </div>
 
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Event Poster</label>
-                    <div class="border-dashed p-3 rounded-3 text-center bg-light">
-                        <input type="file" name="poster" class="form-control form-control-sm mb-2" accept="image/*">
-                        <div class="text-muted x-small">Recommended size: 1080x1350px (Max 2MB)</div>
-                    </div>
-                </div>
+                        <div class="mb-3">
+                            <label class="section-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3" 
+                                      placeholder="What is this event about?"></textarea>
+                        </div>
 
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg py-3 shadow-sm">
-                        Submit for Approval
-                    </button>
-                    <a href="{{ url_for('organiser.dashboard') }}" class="btn btn-link text-muted mt-2">Cancel</a>
+                        <div class="mb-3">
+                            <label class="section-label">Event Schedule</label>
+                            <div class="input-group">
+                                <span class="input-group-text border-end-0">
+                                    <i class="bi bi-calendar3"></i>
+                                </span>
+                                <input type="datetime-local" name="date" class="form-control border-start-0 ps-0" required>
+                                <span class="input-group-text bg-white small text-primary border-start-0">
+                                    <i class="bi bi-info-circle" title="Select date and time"></i>
+                                </span>
+                            </div>
+                            <div class="form-text x-small text-muted mt-1">
+                                <i class="bi bi-info-circle-fill me-1"></i> Use the calendar icon on the right to pick a date.
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-8">
+                                <label class="section-label">Venue</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-end-0"><i class="bi bi-geo-alt"></i></span>
+                                    <input type="text" name="venue" class="form-control border-start-0 ps-0" 
+                                           placeholder="Main Auditorium" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="section-label">Capacity</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-end-0"><i class="bi bi-people"></i></span>
+                                    <input type="number" name="capacity" class="form-control border-start-0 ps-0" 
+                                           placeholder="100" min="1" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="section-label">Event Poster</label>
+                            <div class="border-dashed p-4 rounded-3 text-center bg-light">
+                                <i class="bi bi-cloud-arrow-up text-primary fs-2 mb-2 d-block"></i>
+                                <input type="file" name="poster" class="form-control form-control-sm mx-auto" 
+                                       style="max-width: 250px;" accept="image/*">
+                                <div class="text-muted mt-2 x-small">JPG, PNG up to 2MB (1080x1350px)</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mt-2">
+                            <div class="col-sm-8">
+                                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                                    Submit for Approval
+                                </button>
+                            </div>
+                            <div class="col-sm-4">
+                                <a href="{{ url_for('organiser.dashboard') }}" class="btn btn-outline-secondary w-100 py-2 fw-bold">
+                                    Cancel
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                    
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

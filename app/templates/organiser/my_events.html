@@ -16,9 +16,9 @@
             <div class="col-md-3 bg-light d-flex align-items-center justify-content-center border-end">
                 {% if event.poster %}
                     <img src="{{ url_for('static', filename='uploads/' + event.poster) }}" 
-                         class="img-fluid h-100 w-100" 
-                         style="object-fit: cover; min-height: 180px;" 
-                         alt="{{ event.title }}">
+                        class="rounded shadow-sm" 
+                        style="width: 160px; height: 160px; object-fit: cover; margin: 15px;" 
+                        alt="{{ event.title }}">
                 {% else %}
                     <div class="text-center p-4">
                         <i class="bi bi-image text-muted fs-1"></i>
@@ -81,7 +81,7 @@
                             </a>
                         {% elif event.status == 'pending' %}
                             <div class="alert alert-warning py-1 px-3 mb-0 small rounded-pill border-0">
-                                <i class="bi bi-hourglass-split me-1"></i> Submitting to admin for review...
+                                <i class="bi bi-hourglass-split me-1"></i> Submitted to admin for review...
                             </div>
                         {% elif event.status == 'rejected' %}
                             <div class="alert alert-danger py-1 px-3 mb-0 small rounded-pill border-0">

@@ -1,169 +1,87 @@
 /* ===========================
-   Evenza — Modern Global Styles
+   Evenza — Modern Premium Styles
    =========================== */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-
-.shadow-sm { box-shadow: 0 .125rem .25rem rgba(0,0,0,0.045)!important; }
-.card { transition: transform 0.2s ease, box-shadow 0.2s ease; border-radius: 12px; }
-.card:hover { transform: translateY(-2px); box-shadow: 0 .5rem 1rem rgba(0,0,0,0.08)!important; }
-.badge { font-weight: 600; letter-spacing: 0.2px; }
-.bg-primary-subtle { background-color: #e7f0ff !important; }
-.bg-success-subtle { background-color: #e6f9ed !important; }
-.bg-warning-subtle { background-color: #fff9e6 !important; }
-.bg-danger-subtle { background-color: #ffeef0 !important; }
-.bg-info-subtle { background-color: #e6f7ff !important; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
     --primary-gradient: linear-gradient(135deg, #1a56db 0%, #7c3aed 100%);
-    --glass-white: rgba(255, 255, 255, 0.9);
-    --soft-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    --bg-gray: #f8fafc;
+    --border-color: #e2e8f0;
 }
 
 body {
-    background-color: #f3f4f6; /* Slightly deeper gray for better card contrast */
+    background-color: var(--bg-gray);
     font-family: 'Plus Jakarta Sans', sans-serif;
-    color: #1f2937;
+    color: #1e293b;
 }
 
-/* ===========================
-   Navbar
-   =========================== */
-.navbar {
-    background: var(--primary-gradient) !important;
-    backdrop-filter: blur(10px);
-    padding: 0.8rem 1.5rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-}
-
-.navbar-brand {
-    font-size: 1.6rem;
-    letter-spacing: -0.5px;
-    font-weight: 800;
-    color: #fff !important;
-}
-
-.nav-link {
-    font-weight: 500;
-    color: rgba(255,255,255,0.85) !important;
-    transition: all 0.2s ease;
-}
-
-.nav-link:hover {
-    color: #fff !important;
-    transform: translateY(-1px);
-}
-
-.navbar-nav .nav-link.active {
-    background-color: rgba(255,255,255,0.2);
-    backdrop-filter: blur(5px);
-    border-radius: 8px;
-    color: #fff !important;
-}
-
-/* ===========================
-   Cards (Glassmorphism Light)
-   =========================== */
+/* --- Remove Floating / Standardize Cards --- */
 .card {
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: var(--soft-shadow);
-    border-radius: 20px;
-    background: var(--glass-white);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
+/* No more floating! Just a subtle border highlight on hover */
 .card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    transform: none; /* Disables the jump/float */
+    border-color: #7c3aed;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* ===========================
-   Buttons
-   =========================== */
+/* --- Clean Dashboard Stats --- */
+.stat-card {
+    border-top: 4px solid #1a56db; /* Colored top accent instead of side border */
+}
+
+/* --- Premium Buttons --- */
 .btn {
-    border-radius: 12px;
+    border-radius: 10px;
+    padding: 0.6rem 1.2rem;
     font-weight: 600;
-    transition: all 0.2s;
-    letter-spacing: -0.2px;
 }
 
 .btn-primary {
     background: var(--primary-gradient);
     border: none;
-    box-shadow: 0 4px 12px rgba(26, 86, 219, 0.2);
 }
 
-.btn-primary:hover {
-    transform: scale(1.03);
-    box-shadow: 0 6px 18px rgba(26, 86, 219, 0.3);
-    opacity: 0.95;
+/* --- Clean Navbar --- */
+.navbar {
+    background: #ffffff !important; /* White Navbar looks cleaner for SaaS */
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.75rem 1.5rem;
 }
 
-/* ===========================
-   Stat Cards (The Dashboard "Pop")
-   =========================== */
-.stat-card {
-    border-radius: 20px;
-    border: none;
-    overflow: hidden;
-    position: relative;
-    z-index: 1;
-}
-
-.stat-card h2 {
-    font-size: 2.5rem;
+.navbar-brand {
     background: var(--primary-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    letter-spacing: -1px;
+    font-weight: 800;
+    font-size: 1.5rem;
 }
 
-/* ===========================
-   Tables
-   =========================== */
-.table-responsive {
-    border-radius: 20px;
-    background: white;
-    padding: 1rem;
-    box-shadow: var(--soft-shadow);
+.nav-link {
+    color: #64748b !important;
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem !important;
 }
 
-.table thead th {
-    border-bottom: 2px solid #f3f4f6;
-    color: #9ca3af;
-    font-size: 0.75rem;
+.nav-link.active {
+    color: #1a56db !important;
+    background: #f1f5f9;
+    border-radius: 8px;
 }
 
-/* ===========================
-   Flash Messages (Floating Style)
-   =========================== */
+/* --- Flash Messages --- */
 .flash-msg {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1060;
-    min-width: 300px;
-    border-left: 5px solid;
-    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-    animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
-}
-
-/* ===========================
-   Forms
-   =========================== */
-.form-control:focus {
-    border-color: #7c3aed;
-    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
-}
-
-/* Custom QR Image Styling */
-.qr-container {
-    background: #f9fafb;
-    padding: 15px;
-    border-radius: 16px;
-    display: inline-block;
+    top: 24px;
+    right: 24px;
+    z-index: 2000;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }

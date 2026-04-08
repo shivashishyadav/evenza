@@ -1,89 +1,137 @@
 {% extends 'base.html' %}
-{% block title %}Organiser Dashboard — Evenza{% endblock %}
+{% block title %}Dashboard — Evenza{% endblock %}
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-end mb-4">
+<style>
+    /* Professional dashboard tweaks */
+    .stat-card {
+        border-radius: 12px;
+        transition: transform 0.2s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+    .table thead {
+        background-color: #f8fafc;
+    }
+    .x-small { font-size: 0.75rem; }
+    
+    /* Custom progress bar look */
+    .progress {
+        background-color: #e2e8f0;
+        border-radius: 10px;
+    }
+    
+    .table-responsive {
+        border-radius: 0 0 12px 12px;
+    }
+</style>
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-3">
     <div>
-        <h3 class="fw-bold mb-0">Management Console</h3>
-        <p class="text-muted small mb-0">Overview of your event lifecycle</p>
+        <h4 class="fw-bold mb-0 text-dark">Management Console</h4>
+        <p class="text-muted small mb-0">Track and manage your event lifecycle in real-time.</p>
     </div>
-    <a href="{{ url_for('organiser.create_event') }}" class="btn btn-primary shadow-sm">
-        <i class="bi bi-plus-lg"></i> New Event
+    <a href="{{ url_for('organiser.create_event') }}" class="btn btn-primary shadow-sm px-4 fw-bold">
+        <i class="bi bi-plus-lg me-1"></i> New Event
     </a>
 </div>
 
-<div class="row g-4 mb-5">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm text-center p-3">
-            <h1 class="fw-bold mb-0 text-primary">{{ total }}</h1>
-            <p class="text-muted small text-uppercase fw-bold mb-0">Total</p>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-0 shadow-sm p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted x-small text-uppercase fw-bold">Total</span>
+                <i class="bi bi-layers text-primary"></i>
+            </div>
+            <h2 class="fw-bold mb-0 text-dark">{{ total }}</h2>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm text-center p-3">
-            <h1 class="fw-bold mb-0 text-warning">{{ pending }}</h1>
-            <p class="text-muted small text-uppercase fw-bold mb-0">Pending</p>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-0 shadow-sm p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted x-small text-uppercase fw-bold">Pending</span>
+                <i class="bi bi-hourglass-split text-warning"></i>
+            </div>
+            <h2 class="fw-bold mb-0 text-dark">{{ pending }}</h2>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm text-center p-3">
-            <h1 class="fw-bold mb-0 text-success">{{ approved }}</h1>
-            <p class="text-muted small text-uppercase fw-bold mb-0">Live</p>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-0 shadow-sm p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted x-small text-uppercase fw-bold">Live</span>
+                <i class="bi bi-broadcast text-success"></i>
+            </div>
+            <h2 class="fw-bold mb-0 text-dark">{{ approved }}</h2>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm text-center p-3">
-            <h1 class="fw-bold mb-0 text-danger">{{ rejected }}</h1>
-            <p class="text-muted small text-uppercase fw-bold mb-0">Archived</p>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card border-0 shadow-sm p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted x-small text-uppercase fw-bold">Archived</span>
+                <i class="bi bi-archive text-danger"></i>
+            </div>
+            <h2 class="fw-bold mb-0 text-dark">{{ rejected }}</h2>
         </div>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm overflow-hidden">
-    <div class="card-header bg-white py-3">
-        <h5 class="fw-bold mb-0">Current Event Pipeline</h5>
+<div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px;">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h6 class="fw-bold mb-0">Current Event Pipeline</h6>
     </div>
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-            <thead class="bg-light">
-                <tr class="small text-uppercase text-muted">
-                    <th class="px-4">Event Details</th>
-                    <th>Attendance</th>
+            <thead>
+                <tr class="x-small text-uppercase text-muted">
+                    <th class="ps-4 py-3">Event Details</th>
+                    <th>Registration</th>
                     <th>Status</th>
-                    <th class="text-end px-4">Action</th>
+                    <th class="text-end pe-4">Quick Action</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="border-top-0">
                 {% for event, count in events_data %}
                 <tr>
-                    <td class="px-4 py-3">
-                        <div class="fw-bold">{{ event.title }}</div>
-                        <div class="text-muted x-small">{{ event.date.strftime('%d %b %Y') }}</div>
+                    <td class="ps-4 py-3">
+                        <div class="fw-bold text-dark mb-0">{{ event.title }}</div>
+                        <div class="text-muted x-small">
+                            <i class="bi bi-calendar-event me-1"></i> {{ event.date.strftime('%d %b %Y') }}
+                        </div>
                     </td>
                     <td>
-                        <div class="progress" style="height: 6px; width: 100px;">
-                            {% set percent = (count / event.capacity * 100) if event.capacity > 0 else 0 %}
-                            <div class="progress-bar bg-primary" style="width: {{ percent }}%"></div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="progress flex-grow-1" style="height: 6px; max-width: 100px;">
+                                {% set percent = (count / event.capacity * 100) if event.capacity > 0 else 0 %}
+                                <div class="progress-bar bg-primary rounded-pill" style="width: {{ percent }}%"></div>
+                            </div>
+                            <span class="x-small fw-bold text-dark">{{ count }}/{{ event.capacity }}</span>
                         </div>
-                        <small class="text-muted">{{ count }} / {{ event.capacity }}</small>
                     </td>
                     <td>
                         {% if event.status == 'approved' %}
-                            <span class="badge bg-success-subtle text-success border border-success">Approved</span>
+                            <span class="badge rounded-pill bg-success-subtle text-success border border-success px-2 py-1 x-small">Approved</span>
                         {% elif event.status == 'rejected' %}
-                            <span class="badge bg-danger-subtle text-danger border border-danger">Rejected</span>
+                            <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger px-2 py-1 x-small">Rejected</span>
                         {% else %}
-                            <span class="badge bg-warning-subtle text-warning border border-warning">Pending</span>
+                            <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning px-2 py-1 x-small">Pending</span>
                         {% endif %}
                     </td>
-                    <td class="text-end px-4">
+                    <td class="text-end pe-4">
                         {% if event.status == 'approved' %}
-                            <a href="{{ url_for('organiser.checkin', event_id=event.id) }}" class="btn btn-outline-success btn-sm rounded-pill px-3">
-                                <i class="bi bi-person-check"></i> Check-in
+                            <a href="{{ url_for('organiser.checkin', event_id=event.id) }}" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold x-small">
+                                <i class="bi bi-qr-code-scan"></i> Check-in
                             </a>
                         {% else %}
-                            <span class="text-muted opacity-50">—</span>
+                            <span class="text-muted opacity-50 x-small">—</span>
                         {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center py-5">
+                        <i class="bi bi-calendar2-x text-muted display-6 d-block mb-3"></i>
+                        <p class="text-muted small">No events found. Start by creating a new one!</p>
                     </td>
                 </tr>
                 {% endfor %}
