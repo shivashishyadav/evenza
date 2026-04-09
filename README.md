@@ -8,42 +8,18 @@
 
 ---
 
-## Project Preview
+## Project Preview:
 
-## App Screenshots
-
-| Dashboard View | Event Creation |
+### App Screenshots
+| | |
 | :---: | :---: |
-| <img src="app/static/previews/1.png" width="400"> | <img src="app/static/previews/2.png" width="400"> |
-| **Student Registration** | **QR Ticket** |
-| <img src="app/static/previews/3.png" width="400"> | <img src="app/static/previews/4.png" width="400"> |
-
-<details>
-  <summary><b>Click to view more screenshots (Gallery)</b></summary>
-  <br>
-  <table border="0">
-    <tr>
-      <td><img src="app/static/previews/5.png" width="300"></td>
-      <td><img src="app/static/previews/6.png" width="300"></td>
-    </tr>
-    <tr>
-      <td><img src="app/static/previews/7.png" width="300"></td>
-      <td><img src="app/static/previews/8.png" width="300"></td>
-    </tr>
-    <tr>
-      <td><img src="app/static/previews/9.png" width="300"></td>
-      <td><img src="app/static/previews/10.png" width="300"></td>
-    </tr>
-    <tr>
-      <td><img src="app/static/previews/11.png" width="300"></td>
-      <td><img src="app/static/previews/12.png" width="300"></td>
-    </tr>
-    <tr>
-      <td><img src="app/static/previews/13.png" width="300"></td>
-      <td><img src="app/static/previews/14.png" width="300"></td>
-    </tr>
-  </table>
-</details>
+| ![](app/static/previews/1.png) | ![](app/static/previews/2.png) |
+| ![](app/static/previews/3.png) | ![](app/static/previews/4.png) |
+| ![](app/static/previews/5.png) | ![](app/static/previews/6.png) |
+| ![](app/static/previews/7.png) | ![](app/static/previews/8.png) |
+| ![](app/static/previews/9.png) | ![](app/static/previews/10.png) |
+| ![](app/static/previews/11.png) | ![](app/static/previews/12.png) |
+| ![](app/static/previews/13.png) | ![](app/static/previews/14.png) |
 ---
 
 ## Key Features
