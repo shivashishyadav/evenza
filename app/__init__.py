@@ -1,14 +1,12 @@
 # App factory — initialises Flask, SQLAlchemy, Flask-Login and registers all blueprints in one place.
 
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, request, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from flask_mail import Mail
 from config import Config
 
 db = SQLAlchemy() # empty object
 login_manager = LoginManager() # empty object
-mail = Mail() # empty() object
 
 def create_app():
     '''Function that builds app'''
@@ -19,7 +17,6 @@ def create_app():
 
     login_manager.init_app(app) #Login system
     login_manager.login_view = 'auth.login' #If user not logged in, redirect to login page
-    mail.init_app(app) #Attach the Mail system to this Flask app and load its configuration
 
     from app import models
     # THEN create tables
@@ -55,6 +52,14 @@ def create_app():
     @app.errorhandler(401)
     def unauthorized(e):
         return render_template('errors/401.html'), 401
+    
+    @app.errorhandler(413)
+    def request_entity_too_large(error):
+        # If the error happened during a DB save, rollback to keep DB clean
+        db.session.rollback()
+        flash("File is too large! Maximum allowed size is 2MB.", "danger")
+        # Ensure 'auth.view_profile' is the correct endpoint for our profile view
+        return redirect(request.referrer or url_for('auth.profile'))
     
 
     return app

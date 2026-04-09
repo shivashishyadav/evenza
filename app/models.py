@@ -15,6 +15,13 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='student') # student, organiser, admin
+
+    # --- NEW PROFILE FIELDS ---
+    profile_pic = db.Column(db.String(200), nullable=False, default='default_profile.png')
+    bio = db.Column(db.Text, nullable=True)
+    skills = db.Column(db.String(500), nullable=True) # Stored as comma-separated string
+    # ---------------------------
+    
     created_at = db.Column(db.DateTime(timezone=True), default=lambda:datetime.now(timezone.utc))
     is_active = db.Column(db.Boolean, default=True) # added later here for admin can activate or deactivate users
     is_verified = db.Column(db.Boolean, default=False)

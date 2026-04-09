@@ -76,7 +76,7 @@
                     <div class="mb-3">
                         <div class="d-flex justify-content-between">
                             <label class="form-label fw-semibold x-small text-uppercase text-muted">Password</label>
-                            <a href="#" class="x-small text-decoration-none">Forgot?</a>
+                            <a href="{{ url_for('auth.forgot_password') }}" class="x-small text-decoration-none">Forgot?</a>
                         </div>
                         <div class="input-group">
                             <input type="password" name="password" id="password" class="form-control border-end-0" required>

@@ -85,3 +85,15 @@ body {
     border-radius: 12px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
+
+/* 
+/* Removes the default gray background when clicking the search icon button */
+.input-group-text:active {
+    background-color: #fff !important;
+    opacity: 0.7;
+}
+
+.input-group-text:focus {
+    box-shadow: none;
+    outline: none;
+} */

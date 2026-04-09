@@ -7,20 +7,9 @@ from app.models import Event, Registration, Attendance
 from datetime import datetime, timezone
 import os
 from werkzeug.utils import secure_filename
+from app.utils import allowed_file
 
 organiser = Blueprint('organiser', __name__)
-
-# allowed image extensions
-ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png'}
-
-def allowed_file(filename):
-    if '.' not in filename:
-        return False
-    extension = filename.split('.')[-1].lower()
-    if extension in ALLOWED_EXTENSIONS:
-        return True
-    else:
-        return False
 
 
 # -----------------------------------DASHBOARD----------------------------------------

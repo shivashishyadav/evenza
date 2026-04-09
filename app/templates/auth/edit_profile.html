@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0 p-4">
+                <h4 class="fw-bold mb-4">Edit Profile</h4>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="text-center mb-4">
+                        <div class="position-relative d-inline-block">
+                            <img id="preview" 
+                                 src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_pic or 'default_profile.png')) }}" 
+                                 class="rounded-circle border shadow-sm" 
+                                 width="130" height="130" 
+                                 style="object-fit: cover; object-position: top;">
+                            
+                            <label for="profile_pic" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow" 
+                                   style="width: 36px; height: 36px; cursor: pointer; border: 2px solid white;">
+                                <i class="bi bi-camera-fill"></i>
+                                <input type="file" name="profile_pic" id="profile_pic" class="d-none" onchange="previewImage(this)">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="small fw-bold text-muted">NAME</label>
+                        <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="small fw-bold text-muted">BIO</label>
+                        <textarea name="bio" class="form-control" rows="3">{{ user.bio or '' }}</textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="small fw-bold text-muted">SKILLS</label>
+                        <input type="text" name="skills" class="form-control" value="{{ user.skills or '' }}" placeholder="Comma Seperated">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview').src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+{% endblock %}
